@@ -1,0 +1,3 @@
+﻿  Assembling main.asm...
+C:\Irvine\SmallWin.inc(11): warning A4011: multiple .MODEL directives found : .MODEL ignored
+  FinalTypingGame.vcxproj -> C:\Users\cohun\source\repos\FinalTypingGame\Debug\FinalTypingGame.exe

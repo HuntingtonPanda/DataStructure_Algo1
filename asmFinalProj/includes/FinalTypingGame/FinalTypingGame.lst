@@ -1,0 +1,2780 @@
+Microsoft (R) Macro Assembler Version 14.40.33808.0	    06/15/24 00:08:58
+main.asm						     Page 1 - 1
+
+
+				.386
+				.model flat, stdcall
+				.stack 4096
+				ExitProcess PROTO, dwExitCode: DWORD
+				include irvine32.inc
+			      C ; Include file for Irvine32.lib             (Irvine32.inc)
+			      C 
+			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
+			      C 
+			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
+			      C .NOLIST
+			      C .MODEL flat, stdcall
+C:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .MODEL ignored
+			      C .LIST
+			      C 
+			      C INCLUDE VirtualKeys.inc
+			      C ; VirtualKeys.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C 
+			      C .NOLIST
+			      C .LIST
+			      C 
+ 00000000			.data
+					;define variables here
+ 00000000 5F 5F 53 63 72		screenSizePrompt BYTE "__Screen Size__", 0
+	   65 65 6E 20 53
+	   69 7A 65 5F 5F
+	   00
+ 00000010 46 75 6C 6C 73		fullSizePrompt BYTE "Fullscreen Window", 0
+	   63 72 65 65 6E
+	   20 57 69 6E 64
+	   6F 77 00
+ 00000022 4D 69 6E 69 20		miniSizePrompt BYTE "Mini Window", 0
+	   57 69 6E 64 6F
+	   77 00
+ 0000002E 54 6F 20 75 73		screenExplain BYTE "To use ", 34, "Fullscreen Window", 34, " first maximize the window then press enter on Fullscreen Window", 0
+	   65 20 22 46 75
+	   6C 6C 73 63 72
+	   65 65 6E 20 57
+	   69 6E 64 6F 77
+	   22 20 66 69 72
+	   73 74 20 6D 61
+	   78 69 6D 69 7A
+	   65 20 74 68 65
+	   20 77 69 6E 64
+	   6F 77 20 74 68
+	   65 6E 20 70 72
+	   65 73 73 20 65
+	   6E 74 65 72 20
+	   6F 6E 20 46 75
+	   6C 6C 73 63 72
+	   65 65 6E 20 57
+	   69 6E 64 6F 77
+	   00
+
+ 00000089 57 68 69 63 68		gameQueryPrompt BYTE "Which game do you want to play?", 0
+	   20 67 61 6D 65
+	   20 64 6F 20 79
+	   6F 75 20 77 61
+	   6E 74 20 74 6F
+	   20 70 6C 61 79
+	   3F 00
+
+ 000000A9 54 59 50 49 4E		typingTutorPrompt BYTE "TYPING TUTOR",0
+	   47 20 54 55 54
+	   4F 52 00
+
+ 000000B6 54 59 50 49 4E		typingGamePrompt BYTE "TYPING GAME",0
+	   47 20 47 41 4D
+	   45 00
+
+ 000000C2 41 4C 4C 20 57		allWordsUsedprompt BYTE "ALL WORDS USED", 0
+	   4F 52 44 53 20
+	   55 53 45 44 00
+
+ 000000D1 00				gameOver byte 0
+
+ 000000D2 45 41 53 59 00		easyPrompt BYTE "EASY",0
+ 000000D7 4D 45 44 49 55		mediumPrompt BYTE "MEDIUM",0
+	   4D 00
+ 000000DE 48 41 52 44 00		hardPrompt BYTE "HARD",0
+
+ 000000E3 2D 2D 3E 00			rightArrowPrompt BYTE "-->",0
+ 000000E7 3C 2D 2D 00			leftArrowPrompt BYTE "<--",0
+ 000000EB 20 20 20 00			blankArrowPrompt BYTE "   ",0
+ 000000EF 20 20 20 20 20		blankSpacePrompt BYTE "          ",0
+	   20 20 20 20 20
+	   00
+ 000000FA 20 00				spacePrompt BYTE " ",0
+
+ 000000FC 03 20 00			heartPrompt Byte 3, " ", 0
+ 000000FF 05				liveCount Byte 5
+ 00000100 0000				pointCount WORD 0
+
+ 00000102 4C 49 56 45 53		livesPrompt Byte "LIVES: ", 0
+	   3A 20 00
+ 0000010A 53 43 4F 52 45		scorePrompt byte "SCORE: ", 0
+	   3A 20 00
+ 00000112 2D 00				dashPrompt Byte "-", 0
+
+ 00000114 00				gameDifficulty Byte ?
+
+ 00000115 61 00				screenTest BYTE "a",0
+
+
+ 00000117 47 41 4D 45 20		gameOverPrompt BYTE "GAME OVER!",0
+	   4F 56 45 52 21
+	   00
+
+ = 00000078				smallScreenSizeX EQU 120
+ = 0000001E				smallScreenSizeY EQU 30
+
+ = 000000D2				bigScreenSizeX EQU 210
+ = 00000032				bigScreenSizeY EQU 50
+
+ 00000122 00				usedScreenSizeX Byte ?
+ 00000123 00				usedScreenSizeY Byte ?
+
+ 00000124 0A				xPos BYTE 10
+ 00000125 1D				yPos BYTE 29
+
+
+					;FOR THE LEVEL POSITION
+
+
+ 00000126 00				lastXPos Byte ?
+ 00000127 00				lastYPos Byte ?
+
+ 00000128 00				saveXPos Byte ?
+ 00000129 00				saveYPos Byte ?
+
+ 0000012A 00				randomNum byte ?
+
+					;---------------------WORDS--------------------------------------------------
+					COMMENT $
+					aWords BYTE "act", 0 
+						   BYTE "ash", 0
+						   BYTE "aim", 0
+						   BYTE "also", 0
+						   BYTE "atom", 0
+						   BYTE "aunt", 0
+						   BYTE "apple", 0
+						   BYTE "amber", 0
+						   BYTE "arrow", 0
+						   BYTE "around", 0
+						   BYTE "addict", 0
+						   BYTE "access", 0
+						   BYTE "account", 0
+						   BYTE "advance", 0
+						   BYTE "article", 0
+
+					bWords BYTE "bag", 0
+						   BYTE	"bat", 0
+						   BYTE	"bus", 0
+						   BYTE	"bank", 0
+						   BYTE	"base", 0
+						   BYTE	"beat", 0
+						   BYTE	"break", 0
+						   BYTE	"brave", 0
+						   BYTE	"brush", 0
+						   BYTE	"banner", 0
+						   BYTE	"butter", 0
+						   BYTE	"branch", 0
+						   BYTE	"barrier", 0
+						   BYTE	"bicycle", 0
+						   BYTE	"balance", 0
+
+					cWords BYTE "cat", 0
+						   BYTE "cab", 0
+						   BYTE "cop", 0
+						   BYTE "cake", 0
+						   BYTE "call", 0
+						   BYTE "corn", 0
+						   BYTE "cloud", 0
+						   BYTE "chair", 0
+						   BYTE "crown", 0
+						   BYTE "camera", 0
+						   BYTE "cactus", 0
+						   BYTE "cereal", 0
+						   BYTE "concert", 0
+						   BYTE "courage", 0
+						   BYTE "curtain", 0
+
+					;dWords Byte "dog", 0, "day", 0, "dot", 0, "desk", 0, "duck", 0, "dive", 0, "dream", 0, "drink", 0, "dance", 0, "danger", 0, "doctor", 0, "double", 0, "desktop", 0, "display", 0, "disease", 0
+
+					;eWords Byte "eat", 0, "egg", 0, "end", 0, "echo", 0, "edge", 0, "else", 0, "earth", 0, "eagle", 0, "error", 0, "escape", 0, "expert", 0, "extend", 0, "excited", 0, "elastic", 0, "example", 0
+
+					;fWords Byte "fan", 0, "fix", 0, "fun", 0, "fact", 0, "fast", 0, "fire", 0, "flame", 0, "fairy", 0, "fleet", 0, "feline", 0, "fiasco", 0, "flinch", 0, "foresee", 0, "fortune", 0, "freedom", 0
+
+					;gWords Byte "gap", 0, "get", 0, "gum", 0, "game", 0, "gift", 0, "glow", 0, "giant", 0, "grape", 0, "grass", 0, "garden", 0, "goblin", 0, "gospel", 0, "glimpse", 0, "gravity", 0, "general", 0
+					$
+
+ 0000012B 61 63 74 00			aWords BYTE "act", 0 
+ 0000012F  61 74 6F 6D 00			   BYTE "atom", 0
+ 00000134  61 6D 62 65 72			   BYTE "amber", 0
+	   00
+ 0000013A  61 63 63 65 73			   BYTE "access", 0
+	   73 00
+ 00000141  61 64 76 61 6E			   BYTE "advance", 0
+	   63 65 00
+
+ 00000149 62 61 67 00			bWords BYTE "bag", 0
+ 0000014D  62 65 61 74 00			   BYTE	"beat", 0
+ 00000152  62 72 61 76 65			   BYTE	"brave", 0
+	   00
+ 00000158  62 72 61 6E 63			   BYTE	"branch", 0
+	   68 00
+ 0000015F  62 61 6C 61 6E			   BYTE	"balance", 0
+	   63 65 00
+
+ 00000167 63 61 74 00			cWords BYTE "cat", 0
+ 0000016B  63 6F 72 6E 00			   BYTE "corn", 0
+ 00000170  63 72 6F 77 6E			   BYTE "crown", 0
+	   00
+ 00000176  63 61 6D 65 72			   BYTE "camera", 0
+	   61 00
+ 0000017D  63 6F 6E 63 65			   BYTE "concert", 0
+	   72 74 00
+
+ 00000185 64 6F 67 00			dWords BYTE "dog", 0
+ 00000189  64 75 63 6B 00			   BYTE "duck", 0
+ 0000018E  64 72 65 61 6D			   BYTE "dream", 0
+	   00
+ 00000194  64 6F 75 62 6C			   BYTE "double", 0
+	   65 00
+ 0000019B  64 65 73 6B 74			   BYTE "desktop", 0
+	   6F 70 00
+
+ 000001A3 65 61 74 00			eWords Byte "eat", 0
+ 000001A7  65 63 68 6F 00			   BYTE "echo", 0
+ 000001AC  65 72 72 6F 72			   BYTE "error", 0
+	   00
+ 000001B2  65 78 70 65 72			   BYTE "expert", 0
+	   74 00
+ 000001B9  65 6C 61 73 74			   BYTE "elastic", 0
+	   69 63 00
+
+ 000001C1 66 69 78 00			fWords Byte "fix", 0
+ 000001C5  66 69 72 65 00			   BYTE "fire", 0
+ 000001CA  66 61 69 72 79			   BYTE "fairy", 0
+	   00
+ 000001D0  66 69 61 73 63			   BYTE "fiasco", 0
+	   6F 00
+ 000001D7  66 72 65 65 64			   BYTE "freedom", 0
+	   6F 6D 00
+
+ 000001DF 67 61 70 00			gWords Byte "gap", 0
+ 000001E3  67 6C 6F 77 00			   BYTE "glow", 0
+ 000001E8  67 72 61 70 65			   BYTE "grape", 0
+	   00
+ 000001EE  67 6F 73 70 65			   BYTE "gospel", 0
+	   6C 00
+ 000001F5  67 6C 69 6D 70			   BYTE "glimpse", 0
+	   73 65 00
+					;---------------------WORDS--------------------------------------------------
+ = 00000005				wordsPerList EQU 5
+ = 00000003				lengthOfSmallestWord EQU 3
+
+ 000001FD  00000007 [			lettersCurrentlyUsed DWORD 7 Dup(1)
+	    00000001
+	   ]
+ 00000219  00000007 [			wordsXPos BYTE 7 Dup(99h)
+	    99
+	   ]
+ 00000220  00000007 [			wordsYPos BYTE 7 Dup(77h)
+	    77
+	   ]
+					
+ 00000227 00				correctBit BYTE 0
+ 00000228 00				wrongBit BYTE 0
+ 00000229 00000001			typingWord DWORD 1
+ 0000022D 00000000			typingWordX DWORD ?
+ 00000231 00000000			typingWordY DWORD ?
+ 00000235 00				typingWordSize BYTE ?
+ 00000236 00000001			typingWordAddy DWORD 1
+
+ 0000023A 00				typingWordLetter BYTE ?
+ 0000023B 00000000			typingWordPointer DWORD ?
+					
+ 0000023F 00				currentWordSize BYTE ?
+ 00000240 00				currentWordLetter BYTE ?
+
+ 00000241 52 45 41 44 59		readyPrompt BYTE "READY",0
+	   00
+ 00000247 00000000			timeElapsed DWORD ?
+ 0000024B 00000000			errorCounter DWORD 0
+
+
+ 0000024F 49 20 6E 65 76		poem1 BYTE "I never thought I", 39, "d keep a record of my pain", 13, 10, "or happiness", 13, 10, "like candles lighting the entire soft lace", 13, 10, "of the air", 13, 10, "around the full length of your hair/a shower",
+	   65 72 20 74 68
+	   6F 75 67 68 74
+	   20 49 27 64 20
+	   6B 65 65 70 20
+	   61 20 72 65 63
+	   6F 72 64 20 6F
+	   66 20 6D 79 20
+	   70 61 69 6E 0D
+	   0A 6F 72 20 68
+	   61 70 70 69 6E
+	   65 73 73 0D 0A
+	   6C 69 6B 65 20
+	   63 61 6E 64 6C
+	   65 73 20 6C 69
+	   67 68 74 69 6E
+	   67 20 74 68 65
+	   20 65 6E 74 69
+	   72 65 20 73 6F
+	   66 74 20 6C 61
+	   63 65 0D 0A 6F
+	   66 20 74 68 65
+	   20 61 69 72 0D
+	   0A 61 72 6F 75
+	   6E 64 20 74 68
+	   65 20 66 75 6C
+	   6C 20 6C 65 6E
+	   67 74 68 20 6F
+	   66 20 79 6F 75
+	   72 20 68 61 69
+	   72 2F 61 20 73
+	   68 6F 77 65 72
+	   0D 0A 6F 72 67
+	   61 6E 69 7A 65
+	   64 20 62 79 20
+	   47 6F 64 0D 0A
+	   69 6E 20 62 72
+	   6F 77 6E 20 61
+	   6E 64 20 61 75
+	   62 75 72 6E 0D
+	   0A 75 6E 64 75
+	   6C 61 74 69 6F
+	   6E 73 20 6C 75
+	   6D 69 6E 6F 75
+	   73 20 6C 69 6B
+	   65 20 70 61 72
+	   74 69 63 6C 65
+	   73 0D 0A 6F 66
+	   20 66 6C 61 6D
+	   65 0D 0A 0D 0A
+	   42 75 74 20 6E
+	   6F 77 20 49 20
+	   64 6F 0D 0A 72
+	   65 74 72 69 65
+	   76 65 20 61 6E
+	   20 61 66 74 65
+	   72 6E 6F 6F 6E
+	   2E 2E 2E 00
+							   13, 10, "organized by God", 13, 10, "in brown and auburn", 13, 10, "undulations luminous like particles", 13, 10, "of flame", 13, 10, 13, 10, "But now I do", 13, 10, "retrieve an afternoon...", 0
+					
+					Comment $
+					poem1 BYTE "I never thought I", 0
+					$
+
+ = 0000010B				poem1CharCount EQU 267
+
+ 00000370 41 63 63 75 72		accuracyPrompt byte "Accuracy: ", 0
+	   61 63 79 3A 20
+	   00
+ 0000037B 25 00				percentagePrompt byte "%", 0
+ 0000037D 43 68 61 72 61		wpmPrompt byte "Characters per Second: ", 0
+	   63 74 65 72 73
+	   20 70 65 72 20
+	   53 65 63 6F 6E
+	   64 3A 20 00
+
+ 00000000			.code
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000000			main PROC
+					; write assembly code here
+					;call Gotoxy
+					;mov edx,OFFSET screenTest
+					;call WriteString
+
+ 00000000  B8 0000000F			mov eax, (black * 16) + white
+ 00000005  E8 00000000 E		call SetTextColor
+
+ 0000000A  E8 0000003E			call pickSizeScreen
+
+
+					;mov eax, magenta + (yellow * 16)
+					;call SetTextColor
+					;call WriteString
+
+					INVOKE ExitProcess, 0
+ 0000000F  6A 00	   *	    push   +000000000h
+ 00000011  E8 00000000 E   *	    call   ExitProcess
+ 00000016			main ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000016			storePos PROC
+ 00000016  88 15 00000126 R		mov lastXPos, dl
+ 0000001C  88 35 00000127 R		mov lastYPos, dh
+
+ 00000022  8A 15 00000124 R		mov dl, xPos
+ 00000028  8A 35 00000125 R		mov dh, yPos
+					
+ 0000002E  E8 00000000 E		call gotoxy
+ 00000033  C3				ret
+ 00000034			storePos ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000034			restorePos PROC
+ 00000034  8A 15 00000124 R		mov dl, xPos
+ 0000003A  8A 35 00000125 R		mov dh, yPos
+
+ 00000040  86 15 00000126 R		xchg dl, lastXPos
+ 00000046  86 35 00000127 R		xchg dh, lastYPos
+
+ 0000004C  C3				ret
+ 0000004D			restorePos ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 0000004D			pickSizeScreen PROC
+					
+ 0000004D  50				PUSH EAX
+ 0000004E  B8 0000000F			mov eax, white
+ 00000053  E8 00000000 E		call setTextColor
+ 00000058  58				POP EAX
+
+ 00000059  B9 00000001			mov ecx, 1
+ 0000005E  E8 00000F06			call useSmallScreen
+
+ 00000063				selectionArrow:
+					
+ 00000063  E8 00000000 E		call clrscr
+ 00000068  BA 00000000			mov edx, 0
+
+					;getting the 1/5 y axis
+ 0000006D  B8 00000000			mov eax, 0
+ 00000072  A0 00000123 R		mov al, usedScreenSizeY
+ 00000077  B3 05			mov bl, 5
+ 00000079  F6 F3			div bl
+
+ 0000007B  8A F0			mov dh, al
+ 0000007D  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 00000083  D0 EA			shr dl, 1
+					
+ 00000085  88 15 00000124 R		mov xPos, dl
+ 0000008B  88 35 00000125 R		mov yPos, dh
+					;Half the prompt length
+ 00000091  80 EA 07			sub dl, 7
+
+ 00000094  E8 00000000 E		call Gotoxy
+ 00000099  BA 00000000 R		mov edx,OFFSET screenSizePrompt
+ 0000009E  E8 00000000 E		call WriteString
+
+
+					;Screen size options prompt
+ 000000A3  80 05 00000125 R		add yPos, 6
+	   06
+ 000000AA  80 2D 00000124 R		sub xPos, 5
+	   05
+ 000000B1  E8 FFFFFF60			call storePos
+ 000000B6  BA 00000022 R		mov edx,OFFSET miniSizePrompt
+ 000000BB  E8 00000000 E		call WriteString
+
+
+ 000000C0  80 05 00000125 R		add yPos, 3
+	   03
+ 000000C7  80 2D 00000124 R		sub xPos, 3
+	   03
+ 000000CE  E8 FFFFFF43			call storePos
+ 000000D3  BA 00000010 R		mov edx,OFFSET fullSizePrompt
+ 000000D8  E8 00000000 E		call WriteString
+
+					;Getting where the arrows gonna be
+ 000000DD  80 2D 00000125 R		sub yPos, 3
+	   03
+ 000000E4  80 2D 00000124 R		sub xPos, 1
+	   01
+ 000000EB  E8 00000E47			call saveCurrentPos
+
+ 000000F0  B2 01			mov dl, 1
+ 000000F2  8A 35 00000123 R		mov dh, usedScreenSizeY
+ 000000F8  80 EE 02			sub dh, 2
+ 000000FB  E8 00000000 E		call gotoXY
+ 00000100  BA 0000002E R		mov edx, OFFSET screenExplain
+ 00000105  E8 00000000 E		call WriteString
+
+					COMMENT $
+					call randomNumGen
+					mov eax, 0
+					mov al, randomNum
+					call DumpRegs
+					$
+
+						.IF ecx <= 1
+ 0000010A  83 F9 01	   *	    cmp    ecx, 001h
+ 0000010D  77 69	   *	    ja	@C0001
+ 0000010F  B9 00000001					mov ecx, 1
+
+						;Erasing the other arrow
+ 00000114  E8 00000E37					call restoreSavePos
+ 00000119  80 05 00000125 R				add yPos, 3
+	   03
+ 00000120  80 2D 00000124 R				sub xPos, 3
+	   03
+ 00000127  E8 FFFFFEEA					call storePos
+ 0000012C  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 00000131  E8 00000000 E				call WriteString
+					
+ 00000136  80 05 00000124 R				add xPos, 22
+	   16
+ 0000013D  E8 FFFFFED4					call storePos
+ 00000142  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 00000147  E8 00000000 E				call WriteString
+						
+						;Printing the arrow
+ 0000014C  E8 00000DFF					call restoreSavePos
+ 00000151  E8 FFFFFEC0					call storePos
+ 00000156  BA 000000E3 R				mov edx, OFFSET rightArrowPrompt
+ 0000015B  E8 00000000 E				call WriteString
+
+ 00000160  80 05 00000124 R				add xPos, 16
+	   10
+ 00000167  E8 FFFFFEAA					call storePos
+ 0000016C  BA 000000E7 R				mov edx, OFFSET leftArrowPrompt
+ 00000171  E8 00000000 E				call WriteString
+
+						.ELSEIF ecx >= 2
+ 00000176  EB 6C	   *	    jmp    @C0003
+ 00000178		   *@C0001:
+ 00000178  83 F9 02	   *	    cmp    ecx, 002h
+ 0000017B  72 67	   *	    jb	@C0004
+ 0000017D  B9 00000002					mov ecx, 2
+							
+						;Erasing other arrow
+ 00000182  E8 00000DC9					call restoreSavePos
+ 00000187  E8 FFFFFE8A					call storePos
+ 0000018C  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 00000191  E8 00000000 E				call WriteString
+
+ 00000196  80 05 00000124 R				add xPos, 16
+	   10
+ 0000019D  E8 FFFFFE74					call storePos
+ 000001A2  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 000001A7  E8 00000000 E				call WriteString
+
+						;Printing this arrow
+ 000001AC  E8 00000D9F					call restoreSavePos
+ 000001B1  80 05 00000125 R				add yPos, 3
+	   03
+ 000001B8  80 2D 00000124 R				sub xPos, 3
+	   03
+ 000001BF  E8 FFFFFE52					call storePos
+ 000001C4  BA 000000E3 R				mov edx, OFFSET rightArrowPrompt
+ 000001C9  E8 00000000 E				call WriteString
+					
+ 000001CE  80 05 00000124 R				add xPos, 22
+	   16
+ 000001D5  E8 FFFFFE3C					call storePos
+ 000001DA  BA 000000E7 R				mov edx, OFFSET leftArrowPrompt
+ 000001DF  E8 00000000 E				call WriteString
+
+						.ENDIF
+ 000001E4		   *@C0004:
+ 000001E4		   *@C0003:
+
+ 000001E4  8A 15 00000122 R			mov dl, usedScreenSizeX
+ 000001EA  8A 35 00000123 R			mov dh, usedScreenSizeY
+ 000001F0  FE CA				dec dl
+ 000001F2  FE CE				dec dh
+ 000001F4  E8 00000000 E			call gotoXY
+
+ 000001F9				LookForKey:
+ 000001F9  B8 00000064				mov  eax, 100        
+ 000001FE  E8 00000000 E			call Delay        
+
+ 00000203  E8 00000000 E			call ReadKey     
+ 00000208  74 EF			jz   LookForKey 
+ 0000020A  E8 00000445			call anotherGame ;-------------------------------------------
+
+					;call clrscr
+					;call DumpRegs
+
+ 0000020F  66| 83 FA 26			cmp dx, VK_UP
+ 00000213  74 0E			je up_level
+
+
+ 00000215  66| 83 FA 28			cmp dx, VK_DOWN
+ 00000219  74 13			je down_level
+
+ 0000021B  66| 83 FA 0D			cmp dx, VK_RETURN
+ 0000021F  74 18			je screenSizeSelected
+
+ 00000221  EB D6			jmp LookForKey
+
+ 00000223				up_level:
+ 00000223  49					dec ecx
+ 00000224  E8 00000D40				call useSmallScreen
+ 00000229  E9 FFFFFE35				jmp selectionArrow
+
+ 0000022E				down_level:
+ 0000022E  41					inc ecx
+ 0000022F  E8 00000D44				call useBigScreen
+ 00000234  E9 FFFFFE2A				jmp selectionArrow
+
+
+ 00000239				screenSizeSelected:
+					.IF ecx == 1
+ 00000239  83 F9 01	   *	    cmp    ecx, 001h
+ 0000023C  75 07	   *	    jne    @C0006
+ 0000023E  E8 00000D26				call useSmallScreen
+					.ELSEIF ecx ==2
+ 00000243  EB 0A	   *	    jmp    @C0008
+ 00000245		   *@C0006:
+ 00000245  83 F9 02	   *	    cmp    ecx, 002h
+ 00000248  75 05	   *	    jne    @C0009
+ 0000024A  E8 00000D29				call useBigScreen
+					.ENDIF
+ 0000024F		   *@C0009:
+ 0000024F		   *@C0008:
+
+
+ 0000024F  E8 00000001			call whichGameFunc
+
+ 00000254  C3				ret
+
+ 00000255			pickSizeScreen ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000255			whichGameFunc PROC
+
+ 00000255  60				PUSHAD
+
+ 00000256  B8 0000000F			mov eax, white
+ 0000025B  E8 00000000 E		call setTextColor
+
+ 00000260  E8 00000000 E		call clrscr
+
+ 00000265  BA 00000000			mov edx, 0
+
+					;getting the 1/5 y axis
+ 0000026A  B8 00000000			mov eax, 0
+ 0000026F  A0 00000123 R		mov al, usedScreenSizeY
+ 00000274  B3 05			mov bl, 5
+ 00000276  F6 F3			div bl
+
+ 00000278  8A F0			mov dh, al
+ 0000027A  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 00000280  D0 EA			shr dl, 1
+					
+ 00000282  88 15 00000124 R		mov xPos, dl
+ 00000288  88 35 00000125 R		mov yPos, dh
+					;Half the prompt length
+ 0000028E  80 EA 0F			sub dl, 15
+
+ 00000291  E8 00000000 E		call Gotoxy
+ 00000296  BA 00000089 R		mov edx,OFFSET gameQueryPrompt
+ 0000029B  E8 00000000 E		call WriteString
+
+
+					;Screen size options prompt
+ 000002A0  80 05 00000125 R		add yPos, 6
+	   06
+ 000002A7  80 2D 00000124 R		sub xPos, 7
+	   07
+ 000002AE  E8 FFFFFD63			call storePos
+ 000002B3  BA 000000A9 R		mov edx,OFFSET typingTutorPrompt
+ 000002B8  E8 00000000 E		call WriteString
+
+
+ 000002BD  80 05 00000125 R		add yPos, 3
+	   03
+ 000002C4  80 05 00000124 R		add xPos, 1
+	   01
+ 000002CB  E8 FFFFFD46			call storePos
+ 000002D0  BA 000000B6 R		mov edx,OFFSET typingGamePrompt
+ 000002D5  E8 00000000 E		call WriteString
+
+					;Getting where the arrows gonna be
+ 000002DA  80 2D 00000125 R		sub yPos, 3
+	   03
+ 000002E1  80 2D 00000124 R		sub xPos, 5
+	   05
+ 000002E8  E8 00000C4A			call saveCurrentPos
+
+
+
+ 000002ED  B9 00000001			mov ecx, 1
+
+ 000002F2				selectionArrow:
+
+						.IF ecx <= 1
+ 000002F2  83 F9 01	   *	    cmp    ecx, 001h
+ 000002F5  77 69	   *	    ja	@C000B
+ 000002F7  B9 00000001					mov ecx, 1
+
+						;Erasing the other arrow
+ 000002FC  E8 00000C4F					call restoreSavePos
+ 00000301  80 05 00000125 R				add yPos, 3
+	   03
+ 00000308  80 05 00000124 R				add xPos, 1
+	   01
+ 0000030F  E8 FFFFFD02					call storePos
+ 00000314  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 00000319  E8 00000000 E				call WriteString
+					
+ 0000031E  80 05 00000124 R				add xPos, 16
+	   10
+ 00000325  E8 FFFFFCEC					call storePos
+ 0000032A  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 0000032F  E8 00000000 E				call WriteString
+						
+						;Printing the arrow
+ 00000334  E8 00000C17					call restoreSavePos
+ 00000339  E8 FFFFFCD8					call storePos
+ 0000033E  BA 000000E3 R				mov edx, OFFSET rightArrowPrompt
+ 00000343  E8 00000000 E				call WriteString
+
+ 00000348  80 05 00000124 R				add xPos, 17
+	   11
+ 0000034F  E8 FFFFFCC2					call storePos
+ 00000354  BA 000000E7 R				mov edx, OFFSET leftArrowPrompt
+ 00000359  E8 00000000 E				call WriteString
+
+						.ELSEIF ecx >= 2
+ 0000035E  EB 6C	   *	    jmp    @C000D
+ 00000360		   *@C000B:
+ 00000360  83 F9 02	   *	    cmp    ecx, 002h
+ 00000363  72 67	   *	    jb	@C000E
+ 00000365  B9 00000002					mov ecx, 2
+							
+						;Erasing other arrow
+ 0000036A  E8 00000BE1					call restoreSavePos
+ 0000036F  E8 FFFFFCA2					call storePos
+ 00000374  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 00000379  E8 00000000 E				call WriteString
+
+ 0000037E  80 05 00000124 R				add xPos, 17
+	   11
+ 00000385  E8 FFFFFC8C					call storePos
+ 0000038A  BA 000000EB R				mov edx, OFFSET blankArrowPrompt
+ 0000038F  E8 00000000 E				call WriteString
+
+						;Printing this arrow
+ 00000394  E8 00000BB7					call restoreSavePos
+ 00000399  80 05 00000125 R				add yPos, 3
+	   03
+ 000003A0  80 05 00000124 R				add xPos, 1
+	   01
+ 000003A7  E8 FFFFFC6A					call storePos
+ 000003AC  BA 000000E3 R				mov edx, OFFSET rightArrowPrompt
+ 000003B1  E8 00000000 E				call WriteString
+					
+ 000003B6  80 05 00000124 R				add xPos, 16
+	   10
+ 000003BD  E8 FFFFFC54					call storePos
+ 000003C2  BA 000000E7 R				mov edx, OFFSET leftArrowPrompt
+ 000003C7  E8 00000000 E				call WriteString
+
+						.ENDIF
+ 000003CC		   *@C000E:
+ 000003CC		   *@C000D:
+
+ 000003CC  8A 15 00000122 R			mov dl, usedScreenSizeX
+ 000003D2  8A 35 00000123 R			mov dh, usedScreenSizeY
+ 000003D8  FE CA				dec dl
+ 000003DA  FE CE				dec dh
+ 000003DC  E8 00000000 E			call gotoXY
+
+ 000003E1				LookForKey:
+ 000003E1  B8 00000064				mov  eax, 100        
+ 000003E6  E8 00000000 E			call Delay        
+
+ 000003EB  E8 00000000 E			call ReadKey     
+ 000003F0  74 EF			jz   LookForKey 
+ 000003F2  E8 0000025D			call anotherGame ;-------------------------------------------
+
+					;call clrscr
+					;call DumpRegs
+
+ 000003F7  66| 83 FA 26			cmp dx, VK_UP
+ 000003FB  74 0E			je up_level
+
+
+ 000003FD  66| 83 FA 28			cmp dx, VK_DOWN
+ 00000401  74 0E			je down_level
+
+ 00000403  66| 83 FA 0D			cmp dx, VK_RETURN
+ 00000407  74 0E			je screenSizeSelected
+
+ 00000409  EB D6			jmp LookForKey
+
+ 0000040B				up_level:
+ 0000040B  49					dec ecx
+ 0000040C  E9 FFFFFEE1				jmp selectionArrow
+
+ 00000411				down_level:
+ 00000411  41					inc ecx
+ 00000412  E9 FFFFFEDB				jmp selectionArrow
+
+
+ 00000417				screenSizeSelected:
+					.IF ecx == 1
+ 00000417  83 F9 01	   *	    cmp    ecx, 001h
+ 0000041A  75 07	   *	    jne    @C0010
+ 0000041C  E8 00000019				call typingTutorFunc
+					.ELSEIF ecx ==2
+ 00000421  EB 0A	   *	    jmp    @C0012
+ 00000423		   *@C0010:
+ 00000423  83 F9 02	   *	    cmp    ecx, 002h
+ 00000426  75 05	   *	    jne    @C0013
+ 00000428  E8 00000290				call typingGameFunc
+					.ENDIF
+ 0000042D		   *@C0013:
+ 0000042D		   *@C0012:
+
+ 0000042D  61				POPAD
+
+ 0000042E  C3				ret
+
+ 0000042F			whichGameFunc ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+ 0000042F			typingTutorReset PROC
+ 0000042F  C7 05 0000024B R		mov errorCounter, 0
+	   00000000
+ 00000439  C3				ret
+ 0000043A			typingTutorReset ENDP
+
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 0000043A			typingTutorFunc PROC
+ 0000043A  60				PUSHAD
+ 0000043B  E8 FFFFFFEF			call typingTutorReset
+
+ 00000440  E8 00000000 E		call clrscr
+ 00000445  BA 00000000			mov edx, 0
+
+					;----------------------------COUNTDOWN-------------------------------------------------------
+					;getting the 1/5 y axis
+ 0000044A  66| B8 0000			mov ax, 0
+ 0000044E  A0 00000123 R		mov al, usedScreenSizeY
+ 00000453  B3 03			mov bl, 3
+ 00000455  F6 F3			div bl
+
+ 00000457  8A F0			mov dh, al
+ 00000459  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 0000045F  D0 EA			shr dl, 1
+					
+ 00000461  88 15 00000124 R		mov xPos, dl
+ 00000467  88 35 00000125 R		mov yPos, dh
+					;should be 5 but im making 7
+ 0000046D  80 EA 03			sub dl, 3
+
+ 00000470  E8 00000000 E		call Gotoxy
+					
+ 00000475  BA 00000241 R		mov edx,OFFSET readyPrompt
+ 0000047A  E8 00000000 E		call WriteString
+
+ 0000047F  80 05 00000125 R		add yPos, 3
+	   03
+ 00000486  FE 0D 00000124 R		dec xPos
+
+ 0000048C  E8 FFFFFB85			call storePos
+
+ 00000491  B9 00000003			mov ecx, 3
+ 00000496				countdown:
+ 00000496  8B C1				mov eax, ecx
+ 00000498  E8 00000000 E			call writeDec
+
+ 0000049D  E8 FFFFFB74				call storePos
+
+ 000004A2  B8 000003E8				mov eax, 1000
+ 000004A7  E8 00000000 E			call Delay
+ 000004AC  E2 E8			loop countdown
+					;----------------------------COUNTDOWN-------------------------------------------------------
+
+ 000004AE  E8 00000000 E		call clrscr
+
+ 000004B3  B9 00000000			mov ecx, 0
+
+ 000004B8  C6 05 00000124 R		mov xPos, 0
+	   00
+ 000004BF  C6 05 00000125 R		mov yPos, 1
+	   01
+ 000004C6  E8 FFFFFB4B			call storePos
+
+ 000004CB  BA 0000024F R		mov edx, offset poem1
+ 000004D0  E8 00000000 E		call writeString
+
+ 000004D5  E8 FFFFFB3C			call storePos
+ 000004DA  BE 0000024F R		mov esi, offset poem1
+
+ 000004DF  B8 00000002			mov eax, green
+ 000004E4  E8 00000000 E		call setTextColor
+
+ 000004E9				nextLetter:
+ 000004E9  8A 06				mov al, byte PTR [esi]
+ 000004EB  A2 0000023A R			mov typingWordLetter, al
+						.IF al == 0
+ 000004F0  0A C0	   *	    or	al, al
+ 000004F2  75 02	   *	    jne    @C0015
+ 000004F4  EB 44					jmp gameFinished
+						.ENDIF
+ 000004F6		   *@C0015:
+
+ 000004F6					LookForKey:
+ 000004F6  B8 00000014					mov  eax, 20        
+ 000004FB  E8 00000000 E				call Delay
+ 00000500  41						inc ecx
+
+ 00000501  E8 00000000 E				call ReadKey
+ 00000506  74 EE				jz LookForKey 
+ 00000508  E8 00000147				call anotherGame ;-------------------------------------------
+
+ 0000050D  25 000000FF				and eax, 0ffh
+
+						.IF al == typingWordLetter
+ 00000512  3A 05 0000023A R *	    cmp    al, typingWordLetter
+ 00000518  75 18	   *	    jne    @C0017
+ 0000051A  E8 00000000 E				call writeChar
+ 0000051F  46						inc esi
+							.IF al == 13
+ 00000520  3C 0D	   *	    cmp    al, 00Dh
+ 00000522  75 0C	   *	    jne    @C0019
+ 00000524  46							inc esi
+ 00000525  FE 05 00000125 R					inc yPos
+ 0000052B  E8 FFFFFAE6						call storePos
+							.ENDIF
+ 00000530		   *@C0019:
+ 00000530  EB B7					jmp nextLetter
+						.ENDIF
+ 00000532		   *@C0017:
+ 00000532  FF 05 0000024B R			inc errorCounter
+ 00000538  EB AF			jmp nextLetter
+
+
+
+ 0000053A				gameFinished:
+ 0000053A  B8 0000000F			mov eax, white
+ 0000053F  E8 00000000 E		call setTextColor
+
+ 00000544  BA 00000000			mov edx, 0
+ 00000549  8B C1			mov eax, ecx
+ 0000054B  B9 00000032			mov ecx, 50
+ 00000550  F7 F1			div ecx
+
+ 00000552  8B C8			mov ecx, eax
+					.IF ecx == 0
+ 00000554  0B C9	   *	    or	ecx, ecx
+ 00000556  75 05	   *	    jne    @C001B
+ 00000558  B9 00000001				mov ecx, 1
+					.ENDIF
+ 0000055D		   *@C001B:
+ 0000055D  B8 0000010B			mov eax, poem1CharCount
+ 00000562  BB 00000064			mov ebx, 100
+ 00000567  F7 E3			mul ebx
+ 00000569  F7 F1			div ecx
+
+ 0000056B  A3 00000247 R		mov timeElapsed, eax
+
+					;-----------------------------------------------------
+
+ 00000570  BA 00000000			mov edx, 0
+ 00000575  B8 0000010B			mov eax, poem1CharCount
+ 0000057A  2B 05 0000024B R		sub eax, errorCounter
+
+ 00000580  B9 00000064			mov ecx, 100
+ 00000585  F7 E1			mul ecx
+					
+ 00000587  B9 0000010B			mov ecx, poem1CharCount
+ 0000058C  F7 F1			div ecx
+					
+ 0000058E  A3 0000024B R		mov errorCounter, eax
+
+					;----------------------------------------------------------------
+
+ 00000593  E8 00000000 E		call clrscr
+
+ 00000598  8A 15 00000122 R		mov dl, UsedScreenSizeX
+ 0000059E  D0 EA			shr dl, 1
+ 000005A0  80 EA 05			sub dl, 5
+ 000005A3  88 15 00000124 R		mov xPos, dl
+
+ 000005A9  8A 35 00000123 R		mov dh, UsedScreenSizeY
+ 000005AF  D0 EE			shr dh, 1
+ 000005B1  80 EE 03			sub dh, 3
+ 000005B4  88 35 00000125 R		mov yPos, dh
+
+ 000005BA  E8 FFFFFA57			call storePos
+
+ 000005BF  BA 00000117 R		mov edx, offset gameOverPrompt
+ 000005C4  E8 00000000 E		call writeString
+
+ 000005C9  80 2D 00000124 R		sub xPos, 2
+	   02
+ 000005D0  80 05 00000125 R		add yPos, 3
+	   03
+ 000005D7  E8 FFFFFA3A			call storePos
+
+ 000005DC  BA 00000370 R		mov edx, offset accuracyPrompt
+ 000005E1  E8 00000000 E		call writeString
+ 000005E6  A1 0000024B R		mov eax, errorCounter
+ 000005EB  E8 00000000 E		call writeDec
+ 000005F0  BA 0000037B R		mov edx, offset percentagePrompt
+ 000005F5  E8 00000000 E		call writeString
+
+ 000005FA  80 2D 00000124 R		sub xPos, 5
+	   05
+ 00000601  80 05 00000125 R		add yPos, 2
+	   02
+ 00000608  E8 FFFFFA09			call storePos
+
+ 0000060D  BA 0000037D R		mov edx, offset wpmPrompt
+ 00000612  E8 00000000 E		call writeString
+ 00000617  A1 00000247 R		mov eax, timeElapsed
+ 0000061C  E8 00000000 E		call writeDec
+
+ 00000621  B2 00			mov dl, 0
+ 00000623  8A 35 00000123 R		mov dh, UsedScreenSizeY
+ 00000629  FE CE			dec dh
+ 0000062B  E8 00000000 E		call gotoxy
+					
+ 00000630				keyYes:
+ 00000630  B8 00000064		    mov  eax, 100        
+ 00000635  E8 00000000 E	    call Delay        
+
+ 0000063A  E8 00000000 E	    call ReadKey     
+ 0000063F  74 EF			jz   keyYes
+ 00000641  E8 0000000E			call anotherGame ;-------------------------------------------
+					Comment $
+					.IF al == 27
+						call whichGameFunc
+					.ENDIF
+					.IF ah == 83
+						call pickSizeScreen
+					.ENDIF
+					$
+ 00000646  E8 00000009			call anotherGame
+
+					INVOKE ExitProcess, 0
+ 0000064B  6A 00	   *	    push   +000000000h
+ 0000064D  E8 00000000 E   *	    call   ExitProcess
+
+ 00000652  61				POPAD
+ 00000653  C3				ret
+ 00000654			typingTutorFunc ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000654			anotherGame PROC
+ 00000654  60				PUSHAD
+					
+					.IF al == 27
+ 00000655  3C 1B	   *	    cmp    al, 01Bh
+ 00000657  75 06	   *	    jne    @C001D
+ 00000659  61					POPAD
+ 0000065A  E8 FFFFFBF6				call whichGameFunc
+					.ENDIF
+ 0000065F		   *@C001D:
+					.IF ah == 83
+ 0000065F  80 FC 53	   *	    cmp    ah, 053h
+ 00000662  75 06	   *	    jne    @C001F
+ 00000664  61					POPAD
+ 00000665  E8 FFFFF9E3				call pickSizeScreen
+					.ENDIF
+ 0000066A		   *@C001F:
+					
+ 0000066A  61				POPAD
+
+ 0000066B  C3				ret
+ 0000066C			anotherGame ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 0000066C				typingGameReset PROC
+ 0000066C  60					PUSHAD
+ 0000066D  C6 05 000000FF R			mov liveCount, 5
+	   05
+ 00000674  66| C7 05				mov pointCount, 0
+	   00000100 R
+	   0000
+ 0000067D  C6 05 000000D1 R			mov gameOver, 0
+	   00
+
+ 00000684  BE 000001FD R			mov esi, offset lettersCurrentlyUsed
+ 00000689  B9 00000007				mov ecx, 7
+
+ 0000068E					typingGameResetLoop:
+ 0000068E  C7 06 00000001				mov dword ptr [esi], 1
+ 00000694  83 C6 04					add esi, 4
+
+ 00000697  E2 F5				LOOP typingGameResetLoop
+
+ 00000699  C6 05 00000227 R			mov correctBit, 0
+	   00
+ 000006A0  C6 05 00000228 R			mov wrongBit, 0
+	   00
+ 000006A7  C7 05 00000229 R			mov typingWord, 1
+	   00000001
+ 000006B1  C7 05 00000236 R			mov typingWordAddy, 1
+	   00000001
+
+ 000006BB  61					POPAD
+
+ 000006BC  C3					ret
+ 000006BD				typingGameReset ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 000006BD			typingGameFunc PROC
+ 000006BD  60				PUSHAD
+
+ 000006BE  E8 FFFFFFA9			call typingGameReset
+
+ 000006C3  E8 00000000 E		call clrscr
+ 000006C8  BA 00000000			mov edx, 0
+
+					;getting the 1/5 y axis
+ 000006CD  66| B8 0000			mov ax, 0
+ 000006D1  A0 00000123 R		mov al, usedScreenSizeY
+ 000006D6  B3 05			mov bl, 5
+ 000006D8  F6 F3			div bl
+
+ 000006DA  8A F0			mov dh, al
+ 000006DC  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 000006E2  D0 EA			shr dl, 1
+					
+ 000006E4  88 15 00000124 R		mov xPos, dl
+ 000006EA  88 35 00000125 R		mov yPos, dh
+					;should be 5 but im making 7
+ 000006F0  80 EA 05			sub dl, 5
+
+					;call storePos
+ 000006F3  E8 00000000 E		call Gotoxy
+ 000006F8  BA 000000B6 R		mov edx,OFFSET typingGamePrompt
+ 000006FD  E8 00000000 E		call WriteString
+
+ 00000702  80 05 00000125 R		add yPos, 5
+	   05
+ 00000709  80 2D 00000124 R		sub xPos, 1
+	   01
+ 00000710  E8 FFFFF901			call storePos
+ 00000715  BA 000000D2 R		mov edx,OFFSET easyPrompt
+ 0000071A  E8 00000000 E		call WriteString
+
+
+ 0000071F  80 05 00000125 R		add yPos, 2
+	   02
+ 00000726  80 2D 00000124 R		sub xPos, 1
+	   01
+ 0000072D  E8 FFFFF8E4			call storePos
+ 00000732  BA 000000D7 R		mov edx,OFFSET mediumPrompt
+ 00000737  E8 00000000 E		call WriteString
+
+
+ 0000073C  80 05 00000125 R		add yPos, 2
+	   02
+ 00000743  80 05 00000124 R		add xPos, 1
+	   01
+ 0000074A  E8 FFFFF8C7			call storePos
+ 0000074F  BA 000000DE R		mov edx,OFFSET hardPrompt
+ 00000754  E8 00000000 E		call WriteString
+
+					;Setting it back to easy position to make pointer
+ 00000759  80 2D 00000125 R		sub yPos, 4
+	   04
+ 00000760  80 2D 00000124 R		sub xPos, 4
+	   04
+
+
+ 00000767  E8 00000629			call difficultyPointer
+
+ 0000076C  E8 00000000 E		call clrscr
+
+ 00000771  E8 000002A5			call HUDCreate
+
+					;mov ecx, 20
+ 00000776				spawnWords:
+					;push ecx
+					
+ 00000776  60				PUSHAD
+ 00000777  E8 000000E7			call newWordGen
+ 0000077C  61				POPAD
+
+ 0000077D  B9 00000005			mov ecx, 5 ;SPACE BETWEEN WORDS
+ 00000782				gravity:
+ 00000782  51					PUSH ecx
+ 00000783  E8 000001F5				call fallingWord
+						.IF gameOver == 1
+ 00000788  80 3D 000000D1 R
+	   01		   *	    cmp    gameOver, 001h
+ 0000078F  75 02	   *	    jne    @C0021
+ 00000791  EB 41					jmp gameFinished
+						.ENDIF
+ 00000793		   *@C0021:
+
+							;movzx eax, correctBit
+							;call writeInt
+						
+ 00000793  50					PUSH eax
+ 00000794  B8 0000001E				mov eax, 30
+ 00000799  F6 35 00000114 R			div gameDifficulty
+ 0000079F  8B C8				mov ecx, eax
+ 000007A1  58					POP eax
+
+ 000007A2					LookForKey:
+ 000007A2  51						PUSH ecx
+ 000007A3  B8 00000014					mov  eax, 20        
+ 000007A8  E8 00000000 E				call Delay        
+
+ 000007AD  E8 00000000 E				call ReadKey
+ 000007B2  74 18					jz pastGetting
+ 000007B4  E8 FFFFFE9B						call anotherGame ;-------------------------------------------
+ 000007B9  E8 0000036A						call gettingWord
+								.IF typingWordAddy != 1
+ 000007BE  83 3D 00000236 R
+	   01		   *	    cmp    typingWordAddy, 001h
+ 000007C5  74 05	   *	    je	@C0023
+ 000007C7  E8 000001F7							call typingColor
+								.ENDIF
+ 000007CC		   *@C0023:
+ 000007CC						pastGetting:
+ 000007CC  59						POP ecx
+ 000007CD  E2 D3				loop LookForKey 
+							;movzx eax, correctBit
+							;call writeInt
+
+ 000007CF  59					POP ecx
+ 000007D0  E2 B0			Loop gravity
+
+					;pop ecx
+ 000007D2  EB A2			jmp spawnWords
+					
+ 000007D4				gameFinished:
+ 000007D4  E8 00000002				call gameOverScreen
+ 000007D9  61				POPAD
+ 000007DA  C3				ret
+ 000007DB			typingGameFunc ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 000007DB			gameOverScreen PROC
+					
+ 000007DB  E8 00000000 E		call clrscr
+
+ 000007E0  8A 15 00000122 R		mov dl, UsedScreenSizeX
+ 000007E6  D0 EA			shr dl, 1
+ 000007E8  80 EA 05			sub dl, 5
+ 000007EB  88 15 00000124 R		mov xPos, dl
+
+ 000007F1  8A 35 00000123 R		mov dh, UsedScreenSizeY
+ 000007F7  D0 EE			shr dh, 1
+ 000007F9  80 EE 03			sub dh, 3
+ 000007FC  88 35 00000125 R		mov yPos, dh
+
+ 00000802  E8 FFFFF80F			call storePos
+
+ 00000807  BA 00000117 R		mov edx, offset gameOverPrompt
+ 0000080C  E8 00000000 E		call writeString
+
+
+ 00000811  80 05 00000125 R		add yPos, 3
+	   03
+ 00000818  E8 FFFFF7F9			call storePos
+					
+ 0000081D  B8 00000000			mov eax, 0
+
+ 00000822  BA 0000010A R		mov edx, offset scorePrompt
+ 00000827  E8 00000000 E		call writeString
+ 0000082C  66| A1			mov ax, pointcount
+	   00000100 R
+ 00000832  E8 00000000 E		call writeInt
+
+ 00000837  B2 00			mov dl, 0
+ 00000839  8A 35 00000123 R		mov dh, UsedScreenSizeY
+ 0000083F  FE CE			dec dh
+ 00000841  E8 00000000 E		call gotoxy
+					
+ 00000846				LookForKey:
+ 00000846  B8 00000064		    mov  eax, 100        
+ 0000084B  E8 00000000 E	    call Delay        
+
+ 00000850  E8 00000000 E	    call ReadKey     
+ 00000855  74 EF			jz   LookForKey 
+
+					COMMENT $
+					.IF al == 27
+						call whichGameFunc
+					.ENDIF
+					.IF ah == 83
+						call pickSizeScreen
+					.ENDIF
+					$
+ 00000857  E8 FFFFFDF8			call anotherGame
+
+					INVOKE ExitProcess, 0
+ 0000085C  6A 00	   *	    push   +000000000h
+ 0000085E  E8 00000000 E   *	    call   ExitProcess
+ 00000863			gameOverScreen ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000863			newWordGen PROC
+
+ 00000863  E8 0000044C			call randomString
+
+					.IF currentWordLetter == 10
+ 00000868  80 3D 00000240 R
+	   0A		   *	    cmp    currentWordLetter, 00Ah
+ 0000086F  75 02	   *	    jne    @C0025
+ 00000871  EB 27				jmp noWords
+					.ENDIF
+ 00000873		   *@C0025:
+
+ 00000873  0F B6 05			movzx eax, currentWordLetter
+	   00000240 R
+
+ 0000087A  BE 00000219 R		mov esi, offset wordsXPos
+ 0000087F  03 F0			add esi, eax
+
+ 00000881  60				PUSHAD
+ 00000882  E8 00000406			call randomXLoc
+ 00000887  61				POPAD
+
+ 00000888  8A 0D 00000124 R		mov cl, xPos ;TESTING HERE
+ 0000088E  88 0E			mov byte ptr [esi], cl
+
+ 00000890  BE 00000220 R		mov esi, offset wordsYPos
+ 00000895  03 F0			add esi, eax
+
+ 00000897  C6 06 00			mov byte ptr [esi], 0
+
+ 0000089A				noWords:
+
+ 0000089A  C3				ret
+
+ 0000089B			newWordGen ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 0000089B			oneWordCheck PROC
+
+ 0000089B  8B 1F				mov ebx, DWORD ptr [edi]
+						.IF ebx != 1
+ 0000089D  83 FB 01	   *	    cmp    ebx, 001h
+ 000008A0  0F 84 000000D2  *	    je	@C0027
+ 000008A6  60						PUSHAD
+ 000008A7  BE 00000219 R				mov esi, offset wordsXPos
+ 000008AC  03 F0					add esi, eax
+ 000008AE  8A 1E					mov bl, byte ptr [esi]
+ 000008B0  88 1D 00000124 R				mov xPos, bl
+
+ 000008B6  BE 00000220 R				mov esi, offset wordsYPos
+ 000008BB  03 F0					add esi, eax
+ 000008BD  8A 1E					mov bl, byte ptr [esi]
+ 000008BF  88 1D 00000125 R				mov yPos, bl
+
+ 000008C5  8B D0					mov edx, eax
+ 000008C7  B8 00000000					mov eax, (black * 16) + black
+ 000008CC  E8 00000000 E				call SetTextColor
+ 000008D1  8B C2					mov eax, edx
+
+ 000008D3  E8 FFFFF73E					call storePos
+ 000008D8  8B 17					mov edx, dword ptr [edi]
+ 000008DA  E8 00000000 E				call writestring
+
+ 000008DF  FE 06					inc byte ptr [esi]
+ 000008E1  FE 05 00000125 R				inc yPos
+
+ 000008E7  8B D0					mov edx, eax
+ 000008E9  B8 0000000F					mov eax, (black * 16) + white
+ 000008EE  E8 00000000 E				call SetTextColor
+
+ 000008F3  A0 00000123 R				mov al, usedScreenSizeY
+ 000008F8  2C 09					sub al, 9
+							.IF al == yPos 
+ 000008FA  3A 05 00000125 R *	    cmp    al, yPos
+ 00000900  75 67	   *	    jne    @C0029
+ 00000902  FE 0D 000000FF R					dec liveCount
+								.IF typingWordAddy != 1
+ 00000908  83 3D 00000236 R
+	   01		   *	    cmp    typingWordAddy, 001h
+ 0000090F  74 4B	   *	    je	@C002B
+ 00000911  8B 35 00000231 R						mov esi, typingWordY
+ 00000917  8A 26							mov ah, byte ptr [esi]
+										.IF al == ah
+ 00000919  3A C4	   *	    cmp    al, ah
+ 0000091B  75 3F	   *	    jne    @C002D
+ 0000091D  FE 0D 000000FF R								dec liveCount ;PUNISH PLAYER MORE FOR LETTING CURRENT WORD TYPE GO AWAY
+
+ 00000923  53										push ebx
+ 00000924  50							push eax
+ 00000925  8B 1D 0000023B R								mov ebx, typingWordPointer
+ 0000092B  8A 03									mov al, byte ptr [ebx]
+
+ 0000092D  C7 05 00000229 R								mov typingWord, 1
+	   00000001
+ 00000937  A1 00000236 R								mov eax, typingWordAddy
+ 0000093C  C7 00 00000001								mov DWORD ptr [eax], 1
+ 00000942  C6 05 00000227 R								mov correctBit, 0
+	   00
+ 00000949  C7 05 00000236 R								mov typingWordAddy, 1
+	   00000001
+
+ 00000953  58										pop eax
+ 00000954  5B										pop ebx
+
+ 00000955  E8 00000102									call updateHUD
+
+ 0000095A  EB 1B								jmp lostLife
+									.ENDIF
+								.ENDIF
+ 0000095C		   *@C002D:
+
+ 0000095C		   *@C002B:
+ 0000095C  C7 07 00000001					mov DWORD ptr [edi], 1
+
+ 00000962  E8 000000F5						call updateHUD
+
+ 00000967  EB 0E						jmp lostLife
+							.ENDIF
+
+ 00000969		   *@C0029:
+ 00000969  E8 FFFFF6A8					call storePos
+ 0000096E  8B C2					mov eax, edx
+ 00000970  8B 17					mov edx, dword ptr [edi]
+ 00000972  E8 00000000 E				call writestring
+							
+ 00000977						lostLife:
+ 00000977  61						POPAD
+						.ENDIF
+ 00000978		   *@C0027:
+
+ 00000978  83 C7 04				add edi, 4
+ 0000097B  40					inc eax
+
+ 0000097C  C3				ret
+ 0000097D			oneWordCheck ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 0000097D			fallingWord PROC
+
+ 0000097D  B9 00000007			mov ecx, LENGTHOF lettersCurrentlyUsed
+ 00000982  B8 00000000			mov eax, 0
+ 00000987  BF 000001FD R		mov edi, offset lettersCurrentlyUsed
+
+					;call clrscr
+ 0000098C				allWords:
+ 0000098C  E8 FFFFFF0A				call oneWordCheck
+ 00000991  E2 F9			Loop allWords
+
+						
+					.IF typingWordAddy != 1
+ 00000993  83 3D 00000236 R
+	   01		   *	    cmp    typingWordAddy, 001h
+ 0000099A  74 0F	   *	    je	@C002F
+ 0000099C  E8 00000022				call typingColor
+ 000009A1  B8 0000000F				mov eax, (black * 16) + white
+ 000009A6  E8 00000000 E			call SetTextColor
+					.ENDIF
+ 000009AB		   *@C002F:
+
+ 000009AB  52				push edx
+ 000009AC  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 000009B2  8A 35 00000123 R		mov dh, usedScreenSizeY
+ 000009B8  FE CA			dec dl
+ 000009BA  FE CE			dec dh
+ 000009BC  E8 00000000 E		call gotoXY
+ 000009C1  5A				pop edx
+					
+ 000009C2  C3				ret
+
+ 000009C3			fallingWord ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 000009C3			typingColor PROC
+ 000009C3  60				PUSHAD
+ 000009C4  BB 00000000			mov ebx, 0
+ 000009C9  8A 1D 00000227 R		mov bl, correctBit
+					
+ 000009CF  8B 35 00000229 R		mov esi, typingWord
+
+ 000009D5  A1 0000022D R		mov eax, typingWordX
+ 000009DA  8A 10			mov dl, byte ptr [eax]
+ 000009DC  A1 00000231 R		mov eax, typingWordY
+ 000009E1  8A 30			mov dh, byte ptr [eax]
+ 000009E3  E8 00000000 E		call gotoxy
+
+ 000009E8  B9 00000000			mov ecx, 0
+ 000009ED  8A 0D 00000235 R		mov cl,  typingWordSize
+
+ 000009F3				characterPrint:
+ 000009F3  D0 E3				shl bl, 1
+ 000009F5  72 0C				jc greenChar
+
+ 000009F7  B8 0000000F				mov eax, white + (Black*16)
+ 000009FC  E8 00000000 E			call SetTextColor
+ 00000A01  EB 0C				jmp printingStep
+
+ 00000A03					greenChar:
+ 00000A03  B8 00000002				mov eax, green + (Black*16)
+ 00000A08  E8 00000000 E			call SetTextColor
+ 00000A0D  EB 00				jmp printingStep
+
+
+ 00000A0F					printingStep:
+ 00000A0F  8A 06				mov al, byte ptr [esi]
+ 00000A11  46					inc esi
+ 00000A12  E8 00000000 E			call writeChar
+
+ 00000A17  E2 DA			Loop characterPrint
+
+
+ 00000A19  61				POPAD
+
+ 00000A1A  C3				ret 
+ 00000A1B			typingColor ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000A1B			HUDCreate Proc
+ 00000A1B  60				PUSHAD
+
+ 00000A1C  B9 00000000			mov ecx, 0
+ 00000A21  B8 00000000			mov eax, 0
+ 00000A26  8A 0D 00000122 R		mov cl, usedScreenSizeX
+
+ 00000A2C  A0 00000123 R		mov al, usedScreenSizeY
+ 00000A31  2C 09			sub al, 9
+
+ 00000A33  E8 000004FF			call saveCurrentPos
+
+ 00000A38  C6 05 00000124 R		mov xPos, 0
+	   00
+ 00000A3F  A2 00000125 R		mov yPos, al
+
+ 00000A44  E8 FFFFF5CD			call storePos
+
+ 00000A49  BA 00000112 R		mov edx, offset dashPrompt
+
+ 00000A4E				dashDivider:
+
+ 00000A4E  E8 00000000 E			call writeString
+
+ 00000A53  E2 F9			loop dashDivider
+
+ 00000A55  E8 00000002			call updateHUD
+
+ 00000A5A  61				POPAD
+
+ 00000A5B  C3				ret
+ 00000A5C			HUDCreate ENDP
+
+ 00000A5C			updateHud PROC
+ 00000A5C  60				PUSHAD
+
+					.IF liveCount > 10
+ 00000A5D  80 3D 000000FF R
+	   0A		   *	    cmp    liveCount, 00Ah
+ 00000A64  76 0C	   *	    jbe    @C0031
+
+ 00000A66  C6 05 000000D1 R			mov gameOver, 1
+	   01
+ 00000A6D  E9 000000B4				jmp GameOverSkip
+					.ENDIF
+ 00000A72		   *@C0031:
+
+					.IF liveCount == 0
+ 00000A72  80 3D 000000FF R
+	   00		   *	    cmp    liveCount, 000h
+ 00000A79  75 0C	   *	    jne    @C0033
+
+ 00000A7B  C6 05 000000D1 R			mov gameOver, 1
+	   01
+ 00000A82  E9 0000009F				jmp GameOverSkip
+					.ENDIF
+ 00000A87		   *@C0033:
+
+					.IF pointCount == 0FFFFh
+ 00000A87  66| 83 3D
+	   00000100 R FF   *	    cmp    pointCount, 0FFFFh
+ 00000A8F  75 09	   *	    jne    @C0035
+ 00000A91  66| C7 05				mov pointCount, 0
+	   00000100 R
+	   0000
+					.ENDIF
+ 00000A9A		   *@C0035:
+
+ 00000A9A  A0 00000123 R		mov al, usedScreenSizeY
+ 00000A9F  2C 05			sub al, 5
+
+ 00000AA1  C6 05 00000124 R		mov xPos, 5
+	   05
+					
+ 00000AA8  A2 00000125 R		mov yPos, al
+ 00000AAD  E8 FFFFF564			call storePos
+
+ 00000AB2  BA 00000102 R		mov edx, offset livesPrompt
+ 00000AB7  E8 00000000 E		call writeString
+
+ 00000ABC  B8 00000004			mov eax, red
+ 00000AC1  E8 00000000 E		call setTextColor
+
+ 00000AC6  BA 000000FC R		mov edx, offset heartPrompt
+
+ 00000ACB  8A 0D 000000FF R		mov cl, liveCount
+ 00000AD1				heartPrint:
+ 00000AD1  E8 00000000 E			call writeString
+ 00000AD6  E2 F9			loop heartPrint
+
+ 00000AD8  B8 0000000F			mov eax, white
+ 00000ADD  E8 00000000 E		call setTextColor
+
+ 00000AE2  BA 000000EF R		mov edx, offset blankSpacePrompt
+ 00000AE7  E8 00000000 E		call writeString
+
+ 00000AEC  A0 00000122 R		mov al, usedScreenSizeX
+ 00000AF1  2C 1E			sub al, 30
+ 00000AF3  A2 00000124 R		mov xPos, al
+ 00000AF8  E8 FFFFF519			call storePos
+
+ 00000AFD  BA 0000010A R		mov edx, offset scorePrompt
+ 00000B02  E8 00000000 E		call writeString
+
+ 00000B07  E8 00000444			call restoreSavePos
+
+ 00000B0C  B8 00000000			mov eax, 0
+
+ 00000B11  66| A1			mov ax, pointCount
+	   00000100 R
+ 00000B17  E8 00000000 E		call writeInt
+					
+ 00000B1C  BA 000000EF R		mov edx, offset blankSpacePrompt
+ 00000B21  E8 00000000 E		call writeString
+
+ 00000B26				GameOverSkip:
+ 00000B26  61				POPAD
+
+ 00000B27  C3				ret
+
+ 00000B28			updateHUD ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000B28			gettingWord PROC
+					
+ 00000B28  25 000000FF			and eax, 0ffh
+ 00000B2D  0C 20			or al, 32
+
+ 00000B2F  2C 61			sub al, 97d
+
+					.IF typingWord == 1
+ 00000B31  83 3D 00000229 R
+	   01		   *	    cmp    typingWord, 001h
+ 00000B38  0F 85 000000A1  *	    jne    @C0037
+						
+						.IF al > 7
+ 00000B3E  3C 07	   *	    cmp    al, 007h
+ 00000B40  76 0D	   *	    jbe    @C0039
+ 00000B42  66| FF 0D					dec pointCount
+	   00000100 R
+ 00000B49  E8 FFFFFF0E					call updateHud
+ 00000B4E  C3						ret
+						.ENDIF
+
+ 00000B4F		   *@C0039:
+ 00000B4F  BE 000001FD R			mov esi, offset lettersCurrentlyUsed
+ 00000B54  BF 0000012B R			mov edi, offset aWords
+					
+ 00000B59  B9 00000000				mov ecx, 0
+ 00000B5E  8A C8				mov cl, al
+						
+						.If ecx == 0
+ 00000B60  0B C9	   *	    or	ecx, ecx
+ 00000B62  75 02	   *	    jne    @C003B
+ 00000B64  EB 08					jmp pastLoop
+						.ENDIF
+						
+ 00000B66					checkIfUsed:
+ 00000B66		   *@C003B:
+ 00000B66  83 C6 04					add esi, 4
+ 00000B69  83 C7 1E					add edi, 30 ;SIZE OF EACH LIST
+ 00000B6C  E2 F8				loop checkIfUsed
+						
+ 00000B6E					pastLoop:
+
+						
+ 00000B6E  8B 1E				mov ebx, DWORD ptr [esi]
+
+						.IF ebx != 1
+ 00000B70  83 FB 01	   *	    cmp    ebx, 001h
+ 00000B73  74 69	   *	    je	@C003D
+ 00000B75  C6 05 00000227 R				mov correctBit, 80h
+	   80
+ 00000B7C  C7 05 0000022D R				mov typingWordX, offset wordsXPos
+	   00000219 R
+ 00000B86  01 05 0000022D R				add typingWordX, eax
+
+ 00000B8C  C7 05 00000231 R				mov typingWordY, offset wordsYPos
+	   00000220 R
+ 00000B96  01 05 00000231 R				add typingWordY, eax
+
+ 00000B9C  89 35 00000236 R				mov typingWordAddy, esi
+ 00000BA2  89 1D 00000229 R				mov typingWord, ebx ;STORING THE ACTUAL WORD NOT ADDRESS <I LIED IT STORES THE ADDRESS>
+							
+ 00000BA8  89 1D 0000023B R				mov typingWordPointer, ebx
+ 00000BAE  FF 05 0000023B R				inc typingWordPointer
+ 00000BB4  53						push ebx
+ 00000BB5  50						push eax
+ 00000BB6  43						inc ebx
+ 00000BB7  8A 03					mov al, byte ptr [ebx]
+ 00000BB9  A2 0000023A R				mov typingWordLetter, al
+ 00000BBE  58						pop eax
+ 00000BBF  5B						pop ebx
+
+							;mov ebx, esi
+ 00000BC0  2B DF					sub ebx, edi
+
+ 00000BC2  B9 00000004					mov ecx, 4
+ 00000BC7  83 FB 00					cmp ebx, 0
+ 00000BCA  74 0C					jz pastSizeLoop
+							
+ 00000BCC						sizeLoop:
+ 00000BCC  2B D9						sub ebx, ecx
+ 00000BCE  83 FB 00						cmp ebx, 0
+ 00000BD1  66| 9C						pushf
+ 00000BD3  41							inc ecx
+ 00000BD4  66| 9D						popf
+ 00000BD6  75 F4					jnz sizeLoop
+
+ 00000BD8						pastSizeLoop:
+ 00000BD8  88 0D 00000235 R				mov typingWordSize, cl
+						.ENDIF
+
+
+ 00000BDE		   *@C003D:
+ 00000BDE  C3					ret
+					.ENDIF
+ 00000BDF		   *@C0037:
+
+ 00000BDF  04 61			add al, 97d
+
+					.IF al == typingWordLetter
+ 00000BE1  3A 05 0000023A R *	    cmp    al, typingWordLetter
+ 00000BE7  0F 85 00000093  *	    jne    @C003F
+ 00000BED  D0 3D 00000227 R			sar correctBit, 1
+
+ 00000BF3  FF 05 0000023B R			inc typingWordPointer ;WHEN DONE THIS SHOULD POINT AT '0' REMEMBER THAT
+ 00000BF9  53					push ebx
+ 00000BFA  50					push eax
+ 00000BFB  8B 1D 0000023B R			mov ebx, typingWordPointer
+ 00000C01  8A 03				mov al, byte ptr [ebx]
+						
+						.IF al == 0
+ 00000C03  0A C0	   *	    or	al, al
+ 00000C05  75 72	   *	    jne    @C0041
+							;mov eax, typingWord
+							;mov DWORD ptr [eax], 1
+
+ 00000C07  60						PUSHAD
+ 00000C08  B8 00000000					mov eax, 0
+ 00000C0D  A0 00000235 R				mov al, typingWordSize
+ 00000C12  D1 E0					shl eax, 1
+
+ 00000C14  50						push eax
+ 00000C15  B4 00					mov ah, 0
+ 00000C17  66| 01 05					add pointCount, ax
+	   00000100 R
+ 00000C1E  E8 FFFFFE39					call updateHUD
+ 00000C23  58						pop eax
+
+ 00000C24  8B 35 0000022D R				mov esi, typingWordX
+ 00000C2A  8A 1E					mov bl, byte ptr [esi]
+ 00000C2C  88 1D 00000124 R				mov xPos, bl
+
+ 00000C32  8B 35 00000231 R				mov esi, typingWordY
+ 00000C38  8A 1E					mov bl, byte ptr [esi]
+ 00000C3A  88 1D 00000125 R				mov yPos, bl
+
+ 00000C40  E8 FFFFF3D1					call storePos
+ 00000C45  BA 000000EF R				mov edx, offset blankSpacePrompt
+ 00000C4A  E8 00000000 E				call writestring
+
+ 00000C4F  61						POPAD
+
+ 00000C50  C7 05 00000229 R				mov typingWord, 1
+	   00000001
+ 00000C5A  A1 00000236 R				mov eax, typingWordAddy
+ 00000C5F  C7 00 00000001				mov DWORD ptr [eax], 1
+ 00000C65  C6 05 00000227 R				mov correctBit, 0
+	   00
+ 00000C6C  C7 05 00000236 R				mov typingWordAddy, 1
+	   00000001
+
+ 00000C76  58						pop eax
+ 00000C77  5B						pop ebx
+ 00000C78  C3						ret
+						.ENDIF
+
+
+ 00000C79		   *@C0041:
+ 00000C79  A2 0000023A R			mov typingWordLetter, al
+ 00000C7E  58					pop eax
+ 00000C7F  5B					pop ebx
+						;call dumpregs
+					.ENDIF
+ 00000C80		   *@C003F:
+
+ 00000C80  66| FF 0D				dec pointCount
+	   00000100 R
+ 00000C87  E8 FFFFFDD0				call updateHud
+
+ 00000C8C  C3				ret
+ 00000C8D			gettingWord ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000C8D			randomXLoc PROC
+ 00000C8D  E8 00000000 E		call randomize
+ 00000C92  B8 00000000			mov eax, 0
+ 00000C97  A0 00000122 R		mov al, usedScreenSizeX
+ 00000C9C  2A 05 0000023F R		sub al, currentWordSize
+ 00000CA2  E8 00000000 E		call RandomRange
+
+ 00000CA7  A2 00000124 R		mov xPos, al
+ 00000CAC  C6 05 00000125 R		mov yPos, 0
+	   00
+
+ 00000CB3  C3				ret
+ 00000CB4			randomXLoc ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000CB4			randomString PROC
+ 00000CB4  E8 00000000 E		call randomize
+					
+ 00000CB9  B8 00000007			mov eax, LENGTHOF lettersCurrentlyUsed
+ 00000CBE  E8 00000000 E		call RandomRange
+ 00000CC3  A2 0000012A R		mov randomNum, al
+
+ 00000CC8  BF 000001FD R		mov edi, OFFSET lettersCurrentlyUsed
+ 00000CCD  C1 E0 02			shl eax, 2
+ 00000CD0  03 F8			add edi, eax 
+ 00000CD2  C1 E8 02			shr eax, 2
+
+ 00000CD5  52				PUSH EDX
+ 00000CD6  53				PUSH EBX
+ 00000CD7  B9 00000007			mov ecx, LENGTHOF lettersCurrentlyUsed
+ 00000CDC  BA 0000001C			mov edx, SIZEOF lettersCurrentlyUsed
+					
+ 00000CE1				findAvailable:
+ 00000CE1  8B DF			mov ebx, edi
+ 00000CE3  81 EB 000001FD R		sub ebx, OFFSET lettersCurrentlyUsed
+
+					.IF ebx > edx
+ 00000CE9  3B DA	   *	    cmp    ebx, edx
+ 00000CEB  76 07	   *	    jbe    @C0043
+ 00000CED  B0 00				mov al, 0
+ 00000CEF  BF 000001FD R			mov edi, OFFSET lettersCurrentlyUsed
+					.ENDIF
+ 00000CF4		   *@C0043:
+
+ 00000CF4  8B 1F			mov ebx, DWORD ptr [edi]
+
+					.IF ebx != 1
+ 00000CF6  83 FB 01	   *	    cmp    ebx, 001h
+ 00000CF9  74 0C	   *	    je	@C0045
+ 00000CFB  83 C7 04				add edi, 4
+ 00000CFE  04 01				add al, 1
+ 00000D00  E2 DF				loop findAvailable
+ 00000D02  B8 0000000A				mov eax, 10
+					.ENDIF
+ 00000D07		   *@C0045:
+
+ 00000D07  5B				POP EBX
+ 00000D08  5A				POP EDX
+
+ 00000D09  A2 00000240 R		mov currentWordLetter, al
+					.IF al == 0
+ 00000D0E  0A C0	   *	    or	al, al
+ 00000D10  75 07	   *	    jne    @C0047
+ 00000D12  BE 0000012B R			mov esi, OFFSET aWords
+					.ELSEIF al == 1
+ 00000D17  EB 48	   *	    jmp    @C0049
+ 00000D19		   *@C0047:
+ 00000D19  3C 01	   *	    cmp    al, 001h
+ 00000D1B  75 07	   *	    jne    @C004A
+ 00000D1D  BE 00000149 R			mov esi, OFFSET bWords
+					.ELSEIF al == 2
+ 00000D22  EB 3D	   *	    jmp    @C004C
+ 00000D24		   *@C004A:
+ 00000D24  3C 02	   *	    cmp    al, 002h
+ 00000D26  75 07	   *	    jne    @C004D
+ 00000D28  BE 00000167 R			mov esi, OFFSET cWords
+					.ELSEIF al == 3
+ 00000D2D  EB 32	   *	    jmp    @C004F
+ 00000D2F		   *@C004D:
+ 00000D2F  3C 03	   *	    cmp    al, 003h
+ 00000D31  75 07	   *	    jne    @C0050
+ 00000D33  BE 00000185 R			mov esi, OFFSET dWords
+					.ELSEIF al == 4
+ 00000D38  EB 27	   *	    jmp    @C0052
+ 00000D3A		   *@C0050:
+ 00000D3A  3C 04	   *	    cmp    al, 004h
+ 00000D3C  75 07	   *	    jne    @C0053
+ 00000D3E  BE 000001A3 R			mov esi, OFFSET eWords
+					.ELSEIF al == 5
+ 00000D43  EB 1C	   *	    jmp    @C0055
+ 00000D45		   *@C0053:
+ 00000D45  3C 05	   *	    cmp    al, 005h
+ 00000D47  75 07	   *	    jne    @C0056
+ 00000D49  BE 000001C1 R			mov esi, OFFSET fWords
+					.ELSEIF al == 6
+ 00000D4E  EB 11	   *	    jmp    @C0058
+ 00000D50		   *@C0056:
+ 00000D50  3C 06	   *	    cmp    al, 006h
+ 00000D52  75 07	   *	    jne    @C0059
+ 00000D54  BE 000001DF R			mov esi, OFFSET gWords
+					.ELSEIF al == 10
+ 00000D59  EB 06	   *	    jmp    @C005B
+ 00000D5B		   *@C0059:
+ 00000D5B  3C 0A	   *	    cmp    al, 00Ah
+ 00000D5D  75 02	   *	    jne    @C005C
+						;mov edx, offset allWordsUsedprompt
+						;call writeString
+ 00000D5F  EB 33				jmp screenSizeSelected
+						
+					.ENDIF
+ 00000D61		   *@C005C:
+ 00000D61		   *@C005B:
+ 00000D61		   *@C0058:
+ 00000D61		   *@C0055:
+ 00000D61		   *@C0052:
+ 00000D61		   *@C004F:
+ 00000D61		   *@C004C:
+ 00000D61		   *@C0049:
+
+ 00000D61  E8 00000000 E		call randomize
+ 00000D66  B8 00000005			mov eax, wordsPerList
+ 00000D6B  E8 00000000 E		call RandomRange
+ 00000D70  A2 0000012A R		mov randomNum, al
+ 00000D75  0F B6 C8			movzx ecx, al
+					
+ 00000D78  C6 05 0000023F R		mov currentWordSize, lengthOfSmallestWord
+	   03
+ 00000D7F  00 05 0000023F R		add currentWordSize, al
+
+					.IF ecx == 0
+ 00000D85  0B C9	   *	    or	ecx, ecx
+ 00000D87  75 02	   *	    jne    @C005E
+ 00000D89  EB 07				jmp skipLoop
+					.ENDIF
+ 00000D8B		   *@C005E:
+						
+ 00000D8B				findWord:
+ 00000D8B  83 C6 03				add esi, lengthOfSmallestWord
+ 00000D8E  03 F1				add esi, ecx	
+
+ 00000D90  E2 F9			LOOP findWord
+					
+ 00000D92				skipLoop:
+
+ 00000D92  89 37			mov DWORD PTR [edi], esi
+
+					COMMENT $
+					mov edx, esi
+					call writeString
+					call writeInt
+					$
+					
+ 00000D94				screenSizeSelected:
+
+ 00000D94  C3				ret
+
+
+ 00000D95			 randomString ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000D95			difficultyPointer PROC
+				;I NEED TO BE ABLE TO SAVE MY X AND Y POS
+ 00000D95  E8 0000019D		call saveCurrentPos
+
+ 00000D9A  B9 00000001		mov ecx, 1
+
+				;call clrscr
+				;call DumpRegs
+
+ 00000D9F			selectionArrow:
+ 00000D9F  E8 000001AC			call restoreSavePos
+ 00000DA4  E8 FFFFF26D			call storePos
+ 00000DA9  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000DAE  E8 00000000 E		call WriteString
+					
+ 00000DB3  80 05 00000124 R		add xPos, 9
+	   09
+ 00000DBA  E8 FFFFF257			call storePos
+ 00000DBF  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000DC4  E8 00000000 E		call WriteString
+
+ 00000DC9  80 2D 00000124 R		sub xPos, 10
+	   0A
+ 00000DD0  80 05 00000125 R		add yPos, 2
+	   02
+ 00000DD7  E8 FFFFF23A			call storePos
+ 00000DDC  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000DE1  E8 00000000 E		call WriteString
+
+ 00000DE6  80 05 00000124 R		add xPos, 11
+	   0B
+ 00000DED  E8 FFFFF224			call storePos
+ 00000DF2  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000DF7  E8 00000000 E		call WriteString
+
+ 00000DFC  80 2D 00000124 R		sub xPos, 10
+	   0A
+ 00000E03  80 05 00000125 R		add yPos, 2
+	   02
+ 00000E0A  E8 FFFFF207			call storePos
+ 00000E0F  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000E14  E8 00000000 E		call WriteString
+
+ 00000E19  80 05 00000124 R		add xPos, 9
+	   09
+ 00000E20  E8 FFFFF1F1			call storePos
+ 00000E25  BA 000000EB R		mov edx, OFFSET blankArrowPrompt
+ 00000E2A  E8 00000000 E		call WriteString
+
+					.IF ecx <= 1
+ 00000E2F  83 F9 01	   *	    cmp    ecx, 001h
+ 00000E32  77 31	   *	    ja	@C0060
+ 00000E34  B9 00000001				mov ecx, 1
+
+ 00000E39  E8 00000112				call restoreSavePos
+ 00000E3E  E8 FFFFF1D3				call storePos
+ 00000E43  BA 000000E3 R			mov edx, OFFSET rightArrowPrompt
+ 00000E48  E8 00000000 E			call WriteString
+					
+ 00000E4D  80 05 00000124 R			add xPos, 9
+	   09
+ 00000E54  E8 FFFFF1BD				call storePos
+ 00000E59  BA 000000E7 R			mov edx, OFFSET leftArrowPrompt
+ 00000E5E  E8 00000000 E			call WriteString
+
+					.ELSEIF ecx == 2
+ 00000E63  EB 7A	   *	    jmp    @C0062
+ 00000E65		   *@C0060:
+ 00000E65  83 F9 02	   *	    cmp    ecx, 002h
+ 00000E68  75 3A	   *	    jne    @C0063
+						
+ 00000E6A  E8 000000E1				call restoreSavePos
+						
+ 00000E6F  80 2D 00000124 R			sub xPos, 1
+	   01
+ 00000E76  80 05 00000125 R			add yPos, 2
+	   02
+
+ 00000E7D  E8 FFFFF194				call storePos
+ 00000E82  BA 000000E3 R			mov edx, OFFSET rightArrowPrompt
+ 00000E87  E8 00000000 E			call WriteString
+					
+ 00000E8C  80 05 00000124 R			add xPos, 11
+	   0B
+ 00000E93  E8 FFFFF17E				call storePos
+ 00000E98  BA 000000E7 R			mov edx, OFFSET leftArrowPrompt
+ 00000E9D  E8 00000000 E			call WriteString
+
+					.ELSEIF ecx >= 3
+ 00000EA2  EB 3B	   *	    jmp    @C0065
+ 00000EA4		   *@C0063:
+ 00000EA4  83 F9 03	   *	    cmp    ecx, 003h
+ 00000EA7  72 36	   *	    jb	@C0066
+ 00000EA9  B9 00000003				mov ecx, 3
+
+ 00000EAE  E8 0000009D				call restoreSavePos
+ 00000EB3  80 05 00000125 R			add yPos, 4
+	   04
+
+ 00000EBA  E8 FFFFF157				call storePos
+ 00000EBF  BA 000000E3 R			mov edx, OFFSET rightArrowPrompt
+ 00000EC4  E8 00000000 E			call WriteString
+					
+ 00000EC9  80 05 00000124 R			add xPos, 9
+	   09
+ 00000ED0  E8 FFFFF141				call storePos
+ 00000ED5  BA 000000E7 R			mov edx, OFFSET leftArrowPrompt
+ 00000EDA  E8 00000000 E			call WriteString
+
+					.ENDIF
+ 00000EDF		   *@C0066:
+ 00000EDF		   *@C0065:
+ 00000EDF		   *@C0062:
+
+ 00000EDF  8A 15 00000122 R		mov dl, usedScreenSizeX
+ 00000EE5  8A 35 00000123 R		mov dh, usedScreenSizeY
+ 00000EEB  FE CA			dec dl
+ 00000EED  FE CE			dec dh
+ 00000EEF  E8 00000000 E		call gotoXY
+
+ 00000EF4			LookForKey:
+ 00000EF4  B8 00000064		    mov  eax, 100        
+ 00000EF9  E8 00000000 E	    call Delay        
+
+ 00000EFE  E8 00000000 E	    call ReadKey     
+ 00000F03  74 EF		jz   LookForKey
+ 00000F05  E8 FFFFF74A		call anotherGame ;-------------------------------------------
+
+				;call clrscr
+				;call DumpRegs
+
+ 00000F0A  66| 83 FA 26		cmp dx, VK_UP
+ 00000F0E  74 14		je up_level
+
+
+ 00000F10  66| 83 FA 28		cmp dx, VK_DOWN
+ 00000F14  74 14		je down_level
+
+ 00000F16  66| 83 FA 0D		cmp dx, VK_RETURN
+ 00000F1A  88 0D 00000114 R	mov gameDifficulty, cl
+ 00000F20  74 0E		je levelSelected
+
+ 00000F22  EB D0		jmp LookForKey
+
+ 00000F24			up_level:
+ 00000F24  49				dec ecx
+ 00000F25  E9 FFFFFE75			jmp selectionArrow
+
+ 00000F2A			down_level:
+ 00000F2A  41				inc ecx
+ 00000F2B  E9 FFFFFE6F			jmp selectionArrow
+
+
+ 00000F30			levelSelected:
+
+ 00000F30  88 0D 00000114 R		mov gameDifficulty, cl
+
+ 00000F36  C3			ret
+
+ 00000F37			difficultyPointer ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000F37			saveCurrentPos Proc
+
+ 00000F37  8A 15 00000124 R	mov dl, xPos
+ 00000F3D  8A 35 00000125 R	mov dh, yPos
+
+ 00000F43  88 15 00000128 R	mov saveXPos, dl
+ 00000F49  88 35 00000129 R	mov saveYPos, dh
+
+ 00000F4F  C3			ret
+
+ 00000F50			saveCurrentPos ENDP
+
+
+ 00000F50			restoreSavePos Proc
+
+ 00000F50  8A 15 00000128 R	mov dl, saveXPos
+ 00000F56  8A 35 00000129 R	mov dh, saveYPos
+
+ 00000F5C  88 15 00000124 R	mov xPos, dl
+ 00000F62  88 35 00000125 R	mov yPos, dh
+
+ 00000F68  C3			ret
+
+ 00000F69			restoreSavePos ENDP
+
+				;--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 00000F69			useSmallScreen Proc
+ 00000F69  C6 05 00000122 R		mov usedScreenSizeX, smallScreenSizeX
+	   78
+ 00000F70  C6 05 00000123 R		mov usedScreenSizeY, smallScreenSizeY
+	   1E
+					
+ 00000F77  C3				ret
+ 00000F78			useSmallScreen ENDP
+
+
+ 00000F78			useBigScreen Proc
+ 00000F78  C6 05 00000122 R		mov usedScreenSizeX, bigScreenSizeX
+	   D2
+ 00000F7F  C6 05 00000123 R		mov usedScreenSizeY, bigScreenSizeY
+	   32
+					
+ 00000F86  C3				ret
+ 00000F87			useBigScreen ENDP
+
+				END main
+Microsoft (R) Macro Assembler Version 14.40.33808.0	    06/15/24 00:08:58
+main.asm						     Symbols 2 - 1
+
+
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+CONSOLE_CURSOR_INFO  . . . . . .	 00000008
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  bVisible . . . . . . . . . . .	 00000004	 DWord
+CONSOLE_SCREEN_BUFFER_INFO . . .	 00000016
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCursorPosition . . . . . . .	 00000004	 DWord
+  wAttributes  . . . . . . . . .	 00000008	 Word
+  srWindow . . . . . . . . . . .	 0000000A	 QWord
+  dwMaximumWindowSize  . . . . .	 00000012	 DWord
+COORD  . . . . . . . . . . . . .	 00000004
+  X  . . . . . . . . . . . . . .	 00000000	 Word
+  Y  . . . . . . . . . . . . . .	 00000002	 Word
+FILETIME . . . . . . . . . . . .	 00000008
+  loDateTime . . . . . . . . . .	 00000000	 DWord
+  hiDateTime . . . . . . . . . .	 00000004	 DWord
+FOCUS_EVENT_RECORD . . . . . . .	 00000004
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+FPU_ENVIRON  . . . . . . . . . .	 0000001C
+  controlWord  . . . . . . . . .	 00000000	 Word
+  statusWord . . . . . . . . . .	 00000004	 Word
+  tagWord  . . . . . . . . . . .	 00000008	 Word
+  instrPointerOffset . . . . . .	 0000000C	 DWord
+  instrPointerSelector . . . . .	 00000010	 DWord
+  operandPointerOffset . . . . .	 00000014	 DWord
+  operandPointerSelector . . . .	 00000018	 Word
+INPUT_RECORD . . . . . . . . . .	 00000014
+  EventType  . . . . . . . . . .	 00000000	 Word
+  Event  . . . . . . . . . . . .	 00000004	 XmmWord
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+KEY_EVENT_RECORD . . . . . . . .	 00000010
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+MENU_EVENT_RECORD  . . . . . . .	 00000004
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+MOUSE_EVENT_RECORD . . . . . . .	 00000010
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+SMALL_RECT . . . . . . . . . . .	 00000008
+  Left . . . . . . . . . . . . .	 00000000	 Word
+  Top  . . . . . . . . . . . . .	 00000002	 Word
+  Right  . . . . . . . . . . . .	 00000004	 Word
+  Bottom . . . . . . . . . . . .	 00000006	 Word
+SYSTEMTIME . . . . . . . . . . .	 00000010
+  wYear  . . . . . . . . . . . .	 00000000	 Word
+  wMonth . . . . . . . . . . . .	 00000002	 Word
+  wDayOfWeek . . . . . . . . . .	 00000004	 Word
+  wDay . . . . . . . . . . . . .	 00000006	 Word
+  wHour  . . . . . . . . . . . .	 00000008	 Word
+  wMinute  . . . . . . . . . . .	 0000000A	 Word
+  wSecond  . . . . . . . . . . .	 0000000C	 Word
+  wMilliseconds  . . . . . . . .	 0000000E	 Word
+WINDOW_BUFFER_SIZE_RECORD  . . .	 00000004
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000395 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000F87 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleScreenBufferInfo . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetDateTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetFileTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetKeyState  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLastError . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMaxXY . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMseconds  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetNumberOfConsoleInputEvents  .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetProcessHeap . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HUDCreate  . . . . . . . . . . .	P Near	 00000A1B _TEXT	Length= 00000041 Public STDCALL
+  dashDivider  . . . . . . . . .	L Near	 00000A4E _TEXT	
+HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadChar . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleA . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadDec  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFile . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFloat  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFromFile . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadHex  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleScreenBufferSize . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTextAttribute  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTitleA . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleWindowInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetFilePointer . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ShowFPUStack . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Sleep  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+StrLength  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_compare  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_copy . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteChar  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleA  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputAttribute  . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputCharacterA . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteDec . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFloat . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHexB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHex . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteInt . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrameName  . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+anotherGame  . . . . . . . . . .	P Near	 00000654 _TEXT	Length= 00000018 Public STDCALL
+difficultyPointer  . . . . . . .	P Near	 00000D95 _TEXT	Length= 000001A2 Public STDCALL
+  selectionArrow . . . . . . . .	L Near	 00000D9F _TEXT	
+  LookForKey . . . . . . . . . .	L Near	 00000EF4 _TEXT	
+  up_level . . . . . . . . . . .	L Near	 00000F24 _TEXT	
+  down_level . . . . . . . . . .	L Near	 00000F2A _TEXT	
+  levelSelected  . . . . . . . .	L Near	 00000F30 _TEXT	
+fallingWord  . . . . . . . . . .	P Near	 0000097D _TEXT	Length= 00000046 Public STDCALL
+  allWords . . . . . . . . . . .	L Near	 0000098C _TEXT	
+gameOverScreen . . . . . . . . .	P Near	 000007DB _TEXT	Length= 00000088 Public STDCALL
+  LookForKey . . . . . . . . . .	L Near	 00000846 _TEXT	
+gettingWord  . . . . . . . . . .	P Near	 00000B28 _TEXT	Length= 00000165 Public STDCALL
+  checkIfUsed  . . . . . . . . .	L Near	 00000B66 _TEXT	
+  pastLoop . . . . . . . . . . .	L Near	 00000B6E _TEXT	
+  sizeLoop . . . . . . . . . . .	L Near	 00000BCC _TEXT	
+  pastSizeLoop . . . . . . . . .	L Near	 00000BD8 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000016 Public STDCALL
+newWordGen . . . . . . . . . . .	P Near	 00000863 _TEXT	Length= 00000038 Public STDCALL
+  noWords  . . . . . . . . . . .	L Near	 0000089A _TEXT	
+oneWordCheck . . . . . . . . . .	P Near	 0000089B _TEXT	Length= 000000E2 Public STDCALL
+  lostLife . . . . . . . . . . .	L Near	 00000977 _TEXT	
+pickSizeScreen . . . . . . . . .	P Near	 0000004D _TEXT	Length= 00000208 Public STDCALL
+  selectionArrow . . . . . . . .	L Near	 00000063 _TEXT	
+  LookForKey . . . . . . . . . .	L Near	 000001F9 _TEXT	
+  up_level . . . . . . . . . . .	L Near	 00000223 _TEXT	
+  down_level . . . . . . . . . .	L Near	 0000022E _TEXT	
+  screenSizeSelected . . . . . .	L Near	 00000239 _TEXT	
+printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+randomString . . . . . . . . . .	P Near	 00000CB4 _TEXT	Length= 000000E1 Public STDCALL
+  findAvailable  . . . . . . . .	L Near	 00000CE1 _TEXT	
+  findWord . . . . . . . . . . .	L Near	 00000D8B _TEXT	
+  skipLoop . . . . . . . . . . .	L Near	 00000D92 _TEXT	
+  screenSizeSelected . . . . . .	L Near	 00000D94 _TEXT	
+randomXLoc . . . . . . . . . . .	P Near	 00000C8D _TEXT	Length= 00000027 Public STDCALL
+restorePos . . . . . . . . . . .	P Near	 00000034 _TEXT	Length= 00000019 Public STDCALL
+restoreSavePos . . . . . . . . .	P Near	 00000F50 _TEXT	Length= 00000019 Public STDCALL
+saveCurrentPos . . . . . . . . .	P Near	 00000F37 _TEXT	Length= 00000019 Public STDCALL
+scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+storePos . . . . . . . . . . . .	P Near	 00000016 _TEXT	Length= 0000001E Public STDCALL
+typingColor  . . . . . . . . . .	P Near	 000009C3 _TEXT	Length= 00000058 Public STDCALL
+  characterPrint . . . . . . . .	L Near	 000009F3 _TEXT	
+  greenChar  . . . . . . . . . .	L Near	 00000A03 _TEXT	
+  printingStep . . . . . . . . .	L Near	 00000A0F _TEXT	
+typingGameFunc . . . . . . . . .	P Near	 000006BD _TEXT	Length= 0000011E Public STDCALL
+  spawnWords . . . . . . . . . .	L Near	 00000776 _TEXT	
+  gravity  . . . . . . . . . . .	L Near	 00000782 _TEXT	
+  LookForKey . . . . . . . . . .	L Near	 000007A2 _TEXT	
+  pastGetting  . . . . . . . . .	L Near	 000007CC _TEXT	
+  gameFinished . . . . . . . . .	L Near	 000007D4 _TEXT	
+typingGameReset  . . . . . . . .	P Near	 0000066C _TEXT	Length= 00000051 Public STDCALL
+  typingGameResetLoop  . . . . .	L Near	 0000068E _TEXT	
+typingTutorFunc  . . . . . . . .	P Near	 0000043A _TEXT	Length= 0000021A Public STDCALL
+  countdown  . . . . . . . . . .	L Near	 00000496 _TEXT	
+  nextLetter . . . . . . . . . .	L Near	 000004E9 _TEXT	
+  LookForKey . . . . . . . . . .	L Near	 000004F6 _TEXT	
+  gameFinished . . . . . . . . .	L Near	 0000053A _TEXT	
+  keyYes . . . . . . . . . . . .	L Near	 00000630 _TEXT	
+typingTutorReset . . . . . . . .	P Near	 0000042F _TEXT	Length= 0000000B Public STDCALL
+updateHud  . . . . . . . . . . .	P Near	 00000A5C _TEXT	Length= 000000CC Public STDCALL
+  heartPrint . . . . . . . . . .	L Near	 00000AD1 _TEXT	
+  GameOverSkip . . . . . . . . .	L Near	 00000B26 _TEXT	
+useBigScreen . . . . . . . . . .	P Near	 00000F78 _TEXT	Length= 0000000F Public STDCALL
+useSmallScreen . . . . . . . . .	P Near	 00000F69 _TEXT	Length= 0000000F Public STDCALL
+whichGameFunc  . . . . . . . . .	P Near	 00000255 _TEXT	Length= 000001DA Public STDCALL
+  selectionArrow . . . . . . . .	L Near	 000002F2 _TEXT	
+  LookForKey . . . . . . . . . .	L Near	 000003E1 _TEXT	
+  up_level . . . . . . . . . . .	L Near	 0000040B _TEXT	
+  down_level . . . . . . . . . .	L Near	 00000411 _TEXT	
+  screenSizeSelected . . . . . .	L Near	 00000417 _TEXT	
+wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
+CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
+CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
+CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
+CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
+CreateFile . . . . . . . . . . .	Text   	 CreateFileA
+DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
+ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
+ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
+ENABLE_MOUSE_INPUT . . . . . . .	Number	 00000010h   
+ENABLE_PROCESSED_INPUT . . . . .	Number	 00000001h   
+ENABLE_PROCESSED_OUTPUT  . . . .	Number	 00000001h   
+ENABLE_WINDOW_INPUT  . . . . . .	Number	 00000008h   
+ENABLE_WRAP_AT_EOL_OUTPUT  . . .	Number	 00000002h   
+ENHANCED_KEY . . . . . . . . . .	Number	 00000100h   
+FALSE  . . . . . . . . . . . . .	Number	 00000000h   
+FILE_APPEND_DATA . . . . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_ARCHIVE . . . . .	Number	 00000020h   
+FILE_ATTRIBUTE_COMPRESSED  . . .	Number	 00000800h   
+FILE_ATTRIBUTE_DEVICE  . . . . .	Number	 00000040h   
+FILE_ATTRIBUTE_DIRECTORY . . . .	Number	 00000010h   
+FILE_ATTRIBUTE_ENCRYPTED . . . .	Number	 00004000h   
+FILE_ATTRIBUTE_HIDDEN  . . . . .	Number	 00000002h   
+FILE_ATTRIBUTE_NORMAL  . . . . .	Number	 00000080h   
+FILE_ATTRIBUTE_NOT_CONTENT_INDEXED .	Number	 00002000h   
+FILE_ATTRIBUTE_OFFLINE . . . . .	Number	 00001000h   
+FILE_ATTRIBUTE_READONLY  . . . .	Number	 00000001h   
+FILE_ATTRIBUTE_REPARSE_POINT . .	Number	 00000400h   
+FILE_ATTRIBUTE_SPARSE_FILE . . .	Number	 00000200h   
+FILE_ATTRIBUTE_SYSTEM  . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_TEMPORARY . . . .	Number	 00000100h   
+FILE_BEGIN . . . . . . . . . . .	Number	 00000000h   
+FILE_CURRENT . . . . . . . . . .	Number	 00000001h   
+FILE_DELETE_CHILD  . . . . . . .	Number	 00000040h   
+FILE_END . . . . . . . . . . . .	Number	 00000002h   
+FILE_READ_DATA . . . . . . . . .	Number	 00000001h   
+FILE_SHARE_DELETE  . . . . . . .	Number	 00000004h   
+FILE_SHARE_READ  . . . . . . . .	Number	 00000001h   
+FILE_SHARE_WRITE . . . . . . . .	Number	 00000002h   
+FILE_WRITE_DATA  . . . . . . . .	Number	 00000002h   
+FOCUS_EVENT  . . . . . . . . . .	Number	 00000010h   
+FORMAT_MESSAGE_ALLOCATE_BUFFER .	Number	 00000100h   
+FORMAT_MESSAGE_FROM_SYSTEM . . .	Number	 00001000h   
+FormatMessage  . . . . . . . . .	Text   	 FormatMessageA
+GENERIC_ALL  . . . . . . . . . .	Number	 10000000h   
+GENERIC_EXECUTE  . . . . . . . .	Number	 20000000h   
+GENERIC_READ . . . . . . . . . .	Number	 -80000000h   
+GENERIC_WRITE  . . . . . . . . .	Number	 40000000h   
+GetCommandLine . . . . . . . . .	Text   	 GetCommandLineA
+HANDLE . . . . . . . . . . . . .	Text   	 DWORD
+HEAP_GENERATE_EXCEPTIONS . . . .	Number	 00000004h   
+HEAP_GROWABLE  . . . . . . . . .	Number	 00000002h   
+HEAP_NO_SERIALIZE  . . . . . . .	Number	 00000001h   
+HEAP_REALLOC_IN_PLACE_ONLY . . .	Number	 00000010h   
+HEAP_ZERO_MEMORY . . . . . . . .	Number	 00000008h   
+IDABORT  . . . . . . . . . . . .	Number	 00000003h   
+IDCANCEL . . . . . . . . . . . .	Number	 00000002h   
+IDCLOSE  . . . . . . . . . . . .	Number	 00000008h   
+IDCONTINUE . . . . . . . . . . .	Number	 0000000Bh   
+IDHELP . . . . . . . . . . . . .	Number	 00000009h   
+IDIGNORE . . . . . . . . . . . .	Number	 00000005h   
+IDNO . . . . . . . . . . . . . .	Number	 00000007h   
+IDOK . . . . . . . . . . . . . .	Number	 00000001h   
+IDRETRY  . . . . . . . . . . . .	Number	 00000004h   
+IDTIMEOUT  . . . . . . . . . . .	Number	 00007D00h   
+IDTRYAGAIN . . . . . . . . . . .	Number	 0000000Ah   
+IDYES  . . . . . . . . . . . . .	Number	 00000006h   
+INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h   
+KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
+KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
+KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
+LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
+LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
+MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
+MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
+MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
+MB_DEFBUTTON1  . . . . . . . . .	Number	 00000000h   
+MB_DEFBUTTON2  . . . . . . . . .	Number	 00000100h   
+MB_DEFBUTTON3  . . . . . . . . .	Number	 00000200h   
+MB_DEFBUTTON4  . . . . . . . . .	Number	 00000300h   
+MB_HELP  . . . . . . . . . . . .	Number	 00004000h   
+MB_ICONASTERISK  . . . . . . . .	Number	 00000040h   
+MB_ICONERROR . . . . . . . . . .	Number	 00000010h   
+MB_ICONEXCLAMATION . . . . . . .	Number	 00000030h   
+MB_ICONHAND  . . . . . . . . . .	Number	 00000010h   
+MB_ICONINFORMATION . . . . . . .	Number	 00000040h   
+MB_ICONQUESTION  . . . . . . . .	Number	 00000020h   
+MB_ICONSTOP  . . . . . . . . . .	Number	 00000010h   
+MB_ICONWARNING . . . . . . . . .	Number	 00000030h   
+MB_OKCANCEL  . . . . . . . . . .	Number	 00000001h   
+MB_OK  . . . . . . . . . . . . .	Number	 00000000h   
+MB_RETRYCANCEL . . . . . . . . .	Number	 00000005h   
+MB_SYSTEMMODAL . . . . . . . . .	Number	 00001000h   
+MB_TASKMODAL . . . . . . . . . .	Number	 00002000h   
+MB_USERICON  . . . . . . . . . .	Number	 00000080h   
+MB_YESNOCANCEL . . . . . . . . .	Number	 00000003h   
+MB_YESNO . . . . . . . . . . . .	Number	 00000004h   
+MENU_EVENT . . . . . . . . . . .	Number	 00000008h   
+MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h   
+MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
+NULL . . . . . . . . . . . . . .	Number	 00000000h   
+NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
+OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
+OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
+PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
+RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
+RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
+ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
+ReadConsole  . . . . . . . . . .	Text   	 ReadConsoleA
+SCROLLLOCK_ON  . . . . . . . . .	Number	 00000040h   
+SHIFT_MASK . . . . . . . . . . .	Number	 00000010h   
+SHIFT_PRESSED  . . . . . . . . .	Number	 00000010h   
+STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch   
+STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
+STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
+SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
+TAB  . . . . . . . . . . . . . .	Number	 00000009h   
+TRUE . . . . . . . . . . . . . .	Number	 00000001h   
+TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
+VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
+VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
+VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
+VK_BACK  . . . . . . . . . . . .	Number	 00000008h   
+VK_CANCEL  . . . . . . . . . . .	Number	 00000003h   
+VK_CAPITAL . . . . . . . . . . .	Number	 00000014h   
+VK_CLEAR . . . . . . . . . . . .	Number	 0000000Ch   
+VK_CONTROL . . . . . . . . . . .	Number	 00000011h   
+VK_DECIMAL . . . . . . . . . . .	Number	 0000006Eh   
+VK_DELETE  . . . . . . . . . . .	Number	 0000002Eh   
+VK_DIVIDE  . . . . . . . . . . .	Number	 0000006Fh   
+VK_DOWN  . . . . . . . . . . . .	Number	 00000028h   
+VK_END . . . . . . . . . . . . .	Number	 00000023h   
+VK_ESCAPE  . . . . . . . . . . .	Number	 0000001Bh   
+VK_EXECUTE . . . . . . . . . . .	Number	 0000002Bh   
+VK_F10 . . . . . . . . . . . . .	Number	 00000079h   
+VK_F11 . . . . . . . . . . . . .	Number	 0000007Ah   
+VK_F12 . . . . . . . . . . . . .	Number	 0000007Bh   
+VK_F13 . . . . . . . . . . . . .	Number	 0000007Ch   
+VK_F14 . . . . . . . . . . . . .	Number	 0000007Dh   
+VK_F15 . . . . . . . . . . . . .	Number	 0000007Eh   
+VK_F16 . . . . . . . . . . . . .	Number	 0000007Fh   
+VK_F17 . . . . . . . . . . . . .	Number	 00000080h   
+VK_F18 . . . . . . . . . . . . .	Number	 00000081h   
+VK_F19 . . . . . . . . . . . . .	Number	 00000082h   
+VK_F1  . . . . . . . . . . . . .	Number	 00000070h   
+VK_F20 . . . . . . . . . . . . .	Number	 00000083h   
+VK_F21 . . . . . . . . . . . . .	Number	 00000084h   
+VK_F22 . . . . . . . . . . . . .	Number	 00000085h   
+VK_F23 . . . . . . . . . . . . .	Number	 00000086h   
+VK_F24 . . . . . . . . . . . . .	Number	 00000087h   
+VK_F2  . . . . . . . . . . . . .	Number	 00000071h   
+VK_F3  . . . . . . . . . . . . .	Number	 00000072h   
+VK_F4  . . . . . . . . . . . . .	Number	 00000073h   
+VK_F5  . . . . . . . . . . . . .	Number	 00000074h   
+VK_F6  . . . . . . . . . . . . .	Number	 00000075h   
+VK_F7  . . . . . . . . . . . . .	Number	 00000076h   
+VK_F8  . . . . . . . . . . . . .	Number	 00000077h   
+VK_F9  . . . . . . . . . . . . .	Number	 00000078h   
+VK_HELP  . . . . . . . . . . . .	Number	 0000002Fh   
+VK_HOME  . . . . . . . . . . . .	Number	 00000024h   
+VK_INSERT  . . . . . . . . . . .	Number	 0000002Dh   
+VK_LBUTTON . . . . . . . . . . .	Number	 00000001h   
+VK_LCONTROL  . . . . . . . . . .	Number	 000000A2h   
+VK_LEFT  . . . . . . . . . . . .	Number	 00000025h   
+VK_LMENU . . . . . . . . . . . .	Number	 000000A4h   
+VK_LSHIFT  . . . . . . . . . . .	Number	 000000A0h   
+VK_MENU  . . . . . . . . . . . .	Number	 00000012h   
+VK_MULTIPLY  . . . . . . . . . .	Number	 0000006Ah   
+VK_NEXT  . . . . . . . . . . . .	Number	 00000022h   
+VK_NUMLOCK . . . . . . . . . . .	Number	 00000090h   
+VK_NUMPAD0 . . . . . . . . . . .	Number	 00000060h   
+VK_NUMPAD1 . . . . . . . . . . .	Number	 00000061h   
+VK_NUMPAD2 . . . . . . . . . . .	Number	 00000062h   
+VK_NUMPAD3 . . . . . . . . . . .	Number	 00000063h   
+VK_NUMPAD4 . . . . . . . . . . .	Number	 00000064h   
+VK_NUMPAD5 . . . . . . . . . . .	Number	 00000065h   
+VK_NUMPAD6 . . . . . . . . . . .	Number	 00000066h   
+VK_NUMPAD7 . . . . . . . . . . .	Number	 00000067h   
+VK_NUMPAD8 . . . . . . . . . . .	Number	 00000068h   
+VK_NUMPAD9 . . . . . . . . . . .	Number	 00000069h   
+VK_PAUSE . . . . . . . . . . . .	Number	 00000013h   
+VK_PRINT . . . . . . . . . . . .	Number	 0000002Ah   
+VK_PRIOR . . . . . . . . . . . .	Number	 00000021h   
+VK_RBUTTON . . . . . . . . . . .	Number	 00000002h   
+VK_RCONTROL  . . . . . . . . . .	Number	 000000A3h   
+VK_RETURN  . . . . . . . . . . .	Number	 0000000Dh   
+VK_RIGHT . . . . . . . . . . . .	Number	 00000027h   
+VK_RMENU . . . . . . . . . . . .	Number	 000000A5h   
+VK_RSHIFT  . . . . . . . . . . .	Number	 000000A1h   
+VK_SCROLL  . . . . . . . . . . .	Number	 00000091h   
+VK_SEPARATER . . . . . . . . . .	Number	 0000006Ch   
+VK_SHIFT . . . . . . . . . . . .	Number	 00000010h   
+VK_SNAPSHOT  . . . . . . . . . .	Number	 0000002Ch   
+VK_SPACE . . . . . . . . . . . .	Number	 00000020h   
+VK_SUBTRACT  . . . . . . . . . .	Number	 0000006Dh   
+VK_TAB . . . . . . . . . . . . .	Number	 00000009h   
+VK_UP  . . . . . . . . . . . . .	Number	 00000026h   
+WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
+WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
+WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+aWords . . . . . . . . . . . . .	Byte	 0000012B _DATA	
+accuracyPrompt . . . . . . . . .	Byte	 00000370 _DATA	
+allWordsUsedprompt . . . . . . .	Byte	 000000C2 _DATA	
+bWords . . . . . . . . . . . . .	Byte	 00000149 _DATA	
+bigScreenSizeX . . . . . . . . .	Number	 000000D2h   
+bigScreenSizeY . . . . . . . . .	Number	 00000032h   
+black  . . . . . . . . . . . . .	Number	 00000000h   
+blankArrowPrompt . . . . . . . .	Byte	 000000EB _DATA	
+blankSpacePrompt . . . . . . . .	Byte	 000000EF _DATA	
+blue . . . . . . . . . . . . . .	Number	 00000001h   
+brown  . . . . . . . . . . . . .	Number	 00000006h   
+cWords . . . . . . . . . . . . .	Byte	 00000167 _DATA	
+correctBit . . . . . . . . . . .	Byte	 00000227 _DATA	
+currentWordLetter  . . . . . . .	Byte	 00000240 _DATA	
+currentWordSize  . . . . . . . .	Byte	 0000023F _DATA	
+cyan . . . . . . . . . . . . . .	Number	 00000003h   
+dWords . . . . . . . . . . . . .	Byte	 00000185 _DATA	
+dashPrompt . . . . . . . . . . .	Byte	 00000112 _DATA	
+eWords . . . . . . . . . . . . .	Byte	 000001A3 _DATA	
+easyPrompt . . . . . . . . . . .	Byte	 000000D2 _DATA	
+errorCounter . . . . . . . . . .	DWord	 0000024B _DATA	
+exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+fWords . . . . . . . . . . . . .	Byte	 000001C1 _DATA	
+fullSizePrompt . . . . . . . . .	Byte	 00000010 _DATA	
+gWords . . . . . . . . . . . . .	Byte	 000001DF _DATA	
+gameDifficulty . . . . . . . . .	Byte	 00000114 _DATA	
+gameOverPrompt . . . . . . . . .	Byte	 00000117 _DATA	
+gameOver . . . . . . . . . . . .	Byte	 000000D1 _DATA	
+gameQueryPrompt  . . . . . . . .	Byte	 00000089 _DATA	
+gray . . . . . . . . . . . . . .	Number	 00000008h   
+green  . . . . . . . . . . . . .	Number	 00000002h   
+hardPrompt . . . . . . . . . . .	Byte	 000000DE _DATA	
+heartPrompt  . . . . . . . . . .	Byte	 000000FC _DATA	
+lastXPos . . . . . . . . . . . .	Byte	 00000126 _DATA	
+lastYPos . . . . . . . . . . . .	Byte	 00000127 _DATA	
+leftArrowPrompt  . . . . . . . .	Byte	 000000E7 _DATA	
+lengthOfSmallestWord . . . . . .	Number	 00000003h   
+lettersCurrentlyUsed . . . . . .	DWord	 000001FD _DATA	
+lightBlue  . . . . . . . . . . .	Number	 00000009h   
+lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
+lightGray  . . . . . . . . . . .	Number	 00000007h   
+lightGreen . . . . . . . . . . .	Number	 0000000Ah   
+lightMagenta . . . . . . . . . .	Number	 0000000Dh   
+lightRed . . . . . . . . . . . .	Number	 0000000Ch   
+liveCount  . . . . . . . . . . .	Byte	 000000FF _DATA	
+livesPrompt  . . . . . . . . . .	Byte	 00000102 _DATA	
+magenta  . . . . . . . . . . . .	Number	 00000005h   
+mediumPrompt . . . . . . . . . .	Byte	 000000D7 _DATA	
+miniSizePrompt . . . . . . . . .	Byte	 00000022 _DATA	
+percentagePrompt . . . . . . . .	Byte	 0000037B _DATA	
+poem1CharCount . . . . . . . . .	Number	 0000010Bh   
+poem1  . . . . . . . . . . . . .	Byte	 0000024F _DATA	
+pointCount . . . . . . . . . . .	Word	 00000100 _DATA	
+randomNum  . . . . . . . . . . .	Byte	 0000012A _DATA	
+readyPrompt  . . . . . . . . . .	Byte	 00000241 _DATA	
+red  . . . . . . . . . . . . . .	Number	 00000004h   
+rightArrowPrompt . . . . . . . .	Byte	 000000E3 _DATA	
+saveXPos . . . . . . . . . . . .	Byte	 00000128 _DATA	
+saveYPos . . . . . . . . . . . .	Byte	 00000129 _DATA	
+scorePrompt  . . . . . . . . . .	Byte	 0000010A _DATA	
+screenExplain  . . . . . . . . .	Byte	 0000002E _DATA	
+screenSizePrompt . . . . . . . .	Byte	 00000000 _DATA	
+screenTest . . . . . . . . . . .	Byte	 00000115 _DATA	
+smallScreenSizeX . . . . . . . .	Number	 00000078h   
+smallScreenSizeY . . . . . . . .	Number	 0000001Eh   
+spacePrompt  . . . . . . . . . .	Byte	 000000FA _DATA	
+timeElapsed  . . . . . . . . . .	DWord	 00000247 _DATA	
+typingGamePrompt . . . . . . . .	Byte	 000000B6 _DATA	
+typingTutorPrompt  . . . . . . .	Byte	 000000A9 _DATA	
+typingWordAddy . . . . . . . . .	DWord	 00000236 _DATA	
+typingWordLetter . . . . . . . .	Byte	 0000023A _DATA	
+typingWordPointer  . . . . . . .	DWord	 0000023B _DATA	
+typingWordSize . . . . . . . . .	Byte	 00000235 _DATA	
+typingWordX  . . . . . . . . . .	DWord	 0000022D _DATA	
+typingWordY  . . . . . . . . . .	DWord	 00000231 _DATA	
+typingWord . . . . . . . . . . .	DWord	 00000229 _DATA	
+usedScreenSizeX  . . . . . . . .	Byte	 00000122 _DATA	
+usedScreenSizeY  . . . . . . . .	Byte	 00000123 _DATA	
+white  . . . . . . . . . . . . .	Number	 0000000Fh   
+wordsPerList . . . . . . . . . .	Number	 00000005h   
+wordsXPos  . . . . . . . . . . .	Byte	 00000219 _DATA	
+wordsYPos  . . . . . . . . . . .	Byte	 00000220 _DATA	
+wpmPrompt  . . . . . . . . . . .	Byte	 0000037D _DATA	
+wrongBit . . . . . . . . . . . .	Byte	 00000228 _DATA	
+wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
+xPos . . . . . . . . . . . . . .	Byte	 00000124 _DATA	
+yPos . . . . . . . . . . . . . .	Byte	 00000125 _DATA	
+yellow . . . . . . . . . . . . .	Number	 0000000Eh   
+
+	   1 Warnings
+	   0 Errors
